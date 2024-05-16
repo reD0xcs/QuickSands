@@ -7,9 +7,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class RButton extends JButton {
-    private Color bgColor;
-    private Color borderColor;
-    private Color hoverColor;
+    private final Color bgColor;
+    private final Color borderColor;
+    private final Color hoverColor;
     private boolean hover;
 
     public RButton(String text, Color bgColor, Color borderColor, Color hoverColor) {

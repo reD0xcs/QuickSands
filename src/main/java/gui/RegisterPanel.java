@@ -2,11 +2,14 @@ package gui;
 
 import Components.RButton;
 import Components.TextPrompt;
+import DataBase.FireBaseService;
+import DataBase.User;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -73,9 +76,16 @@ public class RegisterPanel extends BasePanel{
             int validate = validateUserInput(first_name, last_name, email, password);
             switch(validate){
                 case 0:
-                    /*
-                    logic for database connection
-                     */
+                   String role = "user";
+                   User user = null;
+                   try{
+                       user = FireBaseService.registerUser(first_name, last_name, email, password, role);
+                   }catch(IOException ex){
+                       throw new RuntimeException(ex);
+                   }
+                   if(user != null){
+                       baseframe.changePanel(new ProfilePanel(baseframe, user));
+                   }
                 case 1:
                     JOptionPane.showMessageDialog(baseframe, "Error: Every field should be completed");
                     break;
