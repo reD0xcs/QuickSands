@@ -8,6 +8,17 @@ public class BaseFrame extends JFrame {
     public BaseFrame() {
         initialize();
     }
+    public BaseFrame(int w, int h){
+        setTitle("BookNgo");
+
+        setSize(w, h);
+
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        setResizable(false);
+
+        setLocationRelativeTo(null);
+    }
     private void initialize() {
         setTitle("BookNgo");
 

@@ -21,6 +21,8 @@ import java.util.Objects;
 public class AppLauncher {
     public static void main(String[] args) throws IOException {
 
+        FireBaseService.getInstance();
+
         SwingUtilities.invokeLater(() -> {
             BaseFrame baseFrame = new BaseFrame();
             baseFrame.setVisible(true);

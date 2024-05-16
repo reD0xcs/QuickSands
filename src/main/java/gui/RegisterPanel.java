@@ -78,12 +78,8 @@ public class RegisterPanel extends BasePanel{
                 case 0:
                    String role = "user";
                    User user = null;
-                   try{
-                       user = FireBaseService.registerUser(first_name, last_name, email, password, role);
-                   }catch(IOException ex){
-                       throw new RuntimeException(ex);
-                   }
-                   if(user != null){
+                    user = FireBaseService.registerUser(first_name, last_name, email, password, role);
+                    if(user != null){
                        baseframe.changePanel(new ProfilePanel(baseframe, user));
                    }
                 case 1:

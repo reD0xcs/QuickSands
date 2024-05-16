@@ -47,20 +47,17 @@ public class LoginPanel extends BasePanel{
         add(passwordField);
 
         //Buttons
-        RButton loginButton = new RButton("Login", Color.WHITE, Color.decode("#00B7F0"), Color.decode("#AAAAAA"));
+        RButton loginButton = new RButton("Login", Color.decode("#7A4641"), Color.decode("#7A4641"), Color.decode("#7A4641"));
         loginButton.setBounds(80 + 109, 350, 210, 45);
         loginButton.setCursor(cursor);
-        loginButton.setFont(new Font("Dialog", Font.PLAIN, 23));
+        loginButton.setFont(new Font("Dialog", Font.BOLD, 23));
+        loginButton.setForeground(Color.WHITE);
         loginButton.addActionListener(e -> {
             String email = emailField.getText();
             String password = String.valueOf(passwordField.getPassword());
 
             User user;
-            try {
-                user = FireBaseService.verifyAccount(email, password);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            user = FireBaseService.verifyAccount(email, password);
             if(user != null){
                 if(user.getRole().equals("user")){
                     baseFrame.changePanel(new ProfilePanel(baseFrame, user));

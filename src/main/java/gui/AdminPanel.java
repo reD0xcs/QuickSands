@@ -5,11 +5,30 @@ import DataBase.User;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Objects;
 
 public class AdminPanel extends BasePanel{
 
+    public static BaseFrame addOfferFrame = new BaseFrame(1400, 600);
     private final User user;
+
+    private void offer(ActionEvent e) {
+        AddOffer addOffer = new AddOffer(addOfferFrame);
+        addOfferFrame.add(addOffer);
+        addOfferFrame.setLocationRelativeTo(null);
+        addOfferFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addOfferFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                addOfferFrame.dispose();
+            }
+        });
+        addOfferFrame.setVisible(true);
+    }
+
     public AdminPanel(BaseFrame baseFrame, User u){
         user = u;
         setSize(baseFrame.getWidth(), baseFrame.getHeight());
@@ -68,7 +87,7 @@ public class AdminPanel extends BasePanel{
         addNewOfferButton.setCursor(cursor);
         addNewOfferButton.setFont(new Font("Dialog", Font.PLAIN, 40));
         addNewOfferButton.addActionListener(e->{
-            //Set add new Offer scene;
+            offer(e);
         });
         add(addNewOfferButton);
 
