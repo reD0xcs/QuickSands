@@ -97,8 +97,6 @@ public class FireBaseService {
         }
         return null;
     }
-    public static void test(String path){
 
-    }
 
 }

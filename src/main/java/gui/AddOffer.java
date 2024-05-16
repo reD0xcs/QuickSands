@@ -121,7 +121,6 @@ public class AddOffer extends JPanel {
             //Double locationPrice = Double.valueOf(priceField.getText());
             FireBaseService.uploadImageToStorage(paths);
             */
-
         });
 
         add(addButton);
