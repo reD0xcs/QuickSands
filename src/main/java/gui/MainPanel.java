@@ -43,6 +43,7 @@ public class MainPanel extends BasePanel {
         loginButton.setBounds(60, 200, 400, 100);
         loginButton.setCursor(cursor);
         loginButton.setFont(new Font("Dialog", Font.PLAIN, 50));
+        loginButton.setForeground(Color.decode("#D9D9D9"));
         loginButton.addActionListener(e -> {
             baseFrame.changePanel(new LoginPanel(baseFrame));
         });
@@ -53,6 +54,7 @@ public class MainPanel extends BasePanel {
         registerButton.setBounds(60, 350, 400, 100);
         registerButton.setCursor(cursor);
         registerButton.setFont(new Font("Dialog", Font.PLAIN, 50));
+        registerButton.setForeground(Color.decode("#D9D9D9"));
         registerButton.addActionListener(e -> {
             baseFrame.changePanel(new RegisterPanel(baseFrame));
         });
@@ -63,6 +65,7 @@ public class MainPanel extends BasePanel {
         exitButton.setBounds(60, 500, 400, 100);
         exitButton.setCursor(cursor);
         exitButton.setFont(new Font("Dialog", Font.PLAIN, 50));
+        exitButton.setForeground(Color.decode("#D9D9D9"));
         exitButton.addActionListener(e -> {
             System.exit(0);
         });
