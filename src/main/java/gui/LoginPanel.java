@@ -2,10 +2,13 @@ package gui;
 
 import Components.RButton;
 import Components.TextPrompt;
+import DataBase.FireBaseService;
+import DataBase.User;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 
 public class LoginPanel extends BasePanel{
     public LoginPanel(BaseFrame baseFrame){
@@ -52,9 +55,20 @@ public class LoginPanel extends BasePanel{
             String email = emailField.getText();
             String password = String.valueOf(passwordField.getPassword());
 
-           /*
-           Logic for database connection
-            */
+            User user;
+            try {
+                user = FireBaseService.verifyAccount(email, password);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            if(user != null){
+                if(user.getRole().equals("user")){
+                    baseFrame.changePanel(new ProfilePanel(baseFrame, user));
+                }
+                else{
+                    baseFrame.changePanel(new AdminPanel(baseFrame, user));
+                }
+            }
         });
         add(loginButton);
 
@@ -67,9 +81,6 @@ public class LoginPanel extends BasePanel{
             @Override
             public void mouseClicked(MouseEvent e) {
                 baseFrame.changePanel(new RegisterPanel(baseFrame));
-
-
-
             }
         });
         add(registerLabel);
