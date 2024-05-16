@@ -2,6 +2,7 @@ package gui;
 
 import Components.RButton;
 import Components.TextPrompt;
+import DataBase.FireBaseService;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -13,6 +14,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
@@ -26,6 +28,7 @@ public class AddOffer extends JPanel {
         setSize(1400, 600);
         setLayout(null);
 
+
         // Add title label
         JLabel title = new JLabel("Add Offer");
         title.setBounds(0, 20, 600, 50);
@@ -33,8 +36,8 @@ public class AddOffer extends JPanel {
         title.setHorizontalAlignment(SwingConstants.CENTER);
         add(title);
 
-        Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
 
+        Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
 
         // Add location name field
         JTextField nameField = new JTextField();
@@ -67,12 +70,15 @@ public class AddOffer extends JPanel {
         descriptionArea.setFont(new Font("Dialog", Font.PLAIN, 23));
         add(descriptionArea);
 
+
+        String[] paths = new String[25];
+
         // Add upload button
         RButton uploadButton = new RButton("Upload", Color.WHITE, Color.decode("#00B7F0"), Color.decode("#AAAAAA"));
         uploadButton.setCursor(cursor);
         uploadButton.setFont(new Font("Dialog", Font.PLAIN, 23));
         uploadButton.setBounds(280, 380, 220, 70);
-        uploadButton.addActionListener(e -> {{
+        uploadButton.addActionListener(e -> {
             String lastDirectory = Preferences.userNodeForPackage(AddOffer.class).get("Images.lastDirectory", System.getProperty("user.home"));
             JFileChooser fc = new JFileChooser();
             File lastPath = new File(lastDirectory);
@@ -86,10 +92,20 @@ public class AddOffer extends JPanel {
                 Preferences.userNodeForPackage(AddOffer.class).put("Images.lastDirectory", lastDirectory);
 
                 File[] files = fc.getSelectedFiles();
-                imageController.setModel(new DefaultImageModel(Arrays.asList(files)));
+
+                Image[] resizedImages = new Image[files.length];
+                for (int i = 0; i < files.length; i++) {
+                    try {
+                        paths[i] = files[i].toString();
+                        Image originalImage = ImageIO.read(files[i]);
+                        resizedImages[i] = originalImage.getScaledInstance(800, 450, Image.SCALE_SMOOTH);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                imageController.setModel(new DefaultImageModel(Arrays.asList(resizedImages)));
                 navigationController.setModel(new DefaultNavigationModel(0, files.length));
             }
-        }
         });
         add(uploadButton);
 
@@ -98,7 +114,15 @@ public class AddOffer extends JPanel {
         addButton.setCursor(cursor);
         addButton.setFont(new Font("Dialog", Font.PLAIN, 23));
         addButton.setBounds(30, 380, 220, 70);
-        addButton.addActionListener(e -> baseFrame.dispose());
+        addButton.addActionListener(e ->{
+            /*
+            String locationName = nameField.getText();
+            String locationDescription = descriptionArea.getText();
+            //Double locationPrice = Double.valueOf(priceField.getText());
+            FireBaseService.uploadImageToStorage(paths);
+            */
+        });
+
         add(addButton);
 
         // Add image view
@@ -106,7 +130,7 @@ public class AddOffer extends JPanel {
         ImageModel imageModel = new DefaultImageModel(new ArrayList<>());
         imageController = new DefaultImageController(imageView, imageModel);
         JScrollPane imageScrollPane = new JScrollPane(imageController.getView().getView());
-        imageScrollPane.setBounds(540, 40, 800, 450);
+        imageScrollPane.setBounds(540, 40, 810, 460);
         add(imageScrollPane);
 
         // Add navigation controller
@@ -125,37 +149,6 @@ public class AddOffer extends JPanel {
         navPanel.setBounds(750, 480, 300, getHeight() / 6);
         add(navPanel);
 
-        // Add browse toolbar
-        JToolBar tb = new JToolBar();
-        tb.setBounds(800, 50, 100, 50);
-        tb.add(new AbstractAction("Browse") {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String lastDirectory = Preferences.userNodeForPackage(AddOffer.class).get("Images.lastDirectory", System.getProperty("user.home"));
-                JFileChooser fc = new JFileChooser();
-                File lastPath = new File(lastDirectory);
-                if (lastPath.exists() && lastPath.isDirectory()) {
-                    fc.setCurrentDirectory(new File(lastDirectory));
-                }
-                fc.addChoosableFileFilter(new FileNameExtensionFilter("Image files", ImageIO.getReaderFileSuffixes()));
-                fc.setMultiSelectionEnabled(true);
-                if (fc.showOpenDialog(AddOffer.this) == JFileChooser.APPROVE_OPTION) {
-                    lastDirectory = fc.getCurrentDirectory().getPath();
-                    Preferences.userNodeForPackage(AddOffer.class).put("Images.lastDirectory", lastDirectory);
-
-                    File[] files = fc.getSelectedFiles();
-                    ArrayList<Image> array = new ArrayList<>();
-                    for(Object file : files){
-                        ImageIcon logo = new ImageIcon(Objects.requireNonNull(getClass().getResource(file.toString())));
-                        Image newImage = logo.getImage().getScaledInstance(800, 450, Image.SCALE_DEFAULT);
-                        array.add(newImage);
-                    }
-                    imageController.setModel(new DefaultImageModel(Arrays.asList(array)));
-                    navigationController.setModel(new DefaultNavigationModel(0, files.length));
-                }
-            }
-        });
-        //add(tb);
     }
 }
 

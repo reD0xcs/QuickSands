@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.*;
 import java.io.File;
 import java.util.Objects;
 
@@ -16,7 +17,7 @@ public class DefaultImageController implements ImageViewController {
 
         view.setDelegate(new ImageViewDelegate() {
             @Override
-            public File imageAt(ImageView view, int index) {
+            public Image imageAt(ImageView view, int index) {
                 return getModel().getImageAt(index);
             }
         });

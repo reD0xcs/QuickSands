@@ -1,16 +1,25 @@
 package DataBase;
 
 import com.google.api.core.ApiFuture;
+import com.google.api.services.storage.Storage;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.*;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.StorageOptions;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
+import com.google.firebase.cloud.StorageClient;
 
+import javax.swing.text.html.BlockView;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class FireBaseService {
     private static volatile FireBaseService instance;
@@ -40,6 +49,7 @@ public class FireBaseService {
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .setDatabaseUrl("https://proiectc-173b4-default-rtdb.europe-west1.firebasedatabase.app")
+                    .setStorageBucket("proiectc-173b4.appspot.com")
                     .build();
             FirebaseApp.initializeApp(options);
             database = FirestoreClient.getFirestore();
@@ -87,4 +97,6 @@ public class FireBaseService {
         }
         return null;
     }
+
+
 }

@@ -52,16 +52,19 @@ public class DefaultImageViewPane extends JPanel implements ImageView {
         ImageViewDelegate delegate = getDelegate();
         if (delegate != null) {
             img = null;
-            File file = delegate.imageAt(this, index);
+            Image file = delegate.imageAt(this, index);
             if (file != null) {
-                try {
-                    img = ImageIO.read(file);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                // Create a BufferedImage with the same dimensions as the Image
+                img = new BufferedImage(file.getWidth(null), file.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+
+                // Draw the Image onto the BufferedImage
+                Graphics2D g2d = img.createGraphics();
+                g2d.drawImage(file, 0, 0, null);
+                g2d.dispose();
             }
             revalidate();
             repaint();
         }
     }
+
 }
