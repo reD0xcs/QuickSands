@@ -38,6 +38,11 @@ public class AdminPanel extends BasePanel{
     }
 
     @Override
+    public void addComponents(BaseFrame baseFrame, JPanel componentsPanel) {
+
+    }
+
+    @Override
     public void addComponents(BaseFrame frame) {
         Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
         ImageIcon profile = new ImageIcon(Objects.requireNonNull(getClass().getResource("/adminProfile.png")));

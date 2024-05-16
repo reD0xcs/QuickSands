@@ -66,7 +66,7 @@ public class LoginPanel extends BasePanel {
         componentsPanel.add(passwordField);
 
         // Buttons
-        RButton loginButton = new RButton("Login", Color.decode("#7A4641"), Color.decode("#7A4641"), Color.decode("#7A4641"));
+        RButton loginButton = new RButton("Login", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         loginButton.setBounds(50 + 109, 400, 210, 45);
         loginButton.setCursor(cursor);
         loginButton.setFont(new Font("Dialog", Font.BOLD, 23));

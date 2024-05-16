@@ -17,6 +17,12 @@ public class ProfilePanel extends BasePanel{
         setBackground(Color.decode("#F2F2F2"));
         addComponents(baseFrame);
     }
+
+    @Override
+    public void addComponents(BaseFrame baseFrame, JPanel componentsPanel) {
+
+    }
+
     @Override
     public void addComponents(BaseFrame frame) {
         Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
