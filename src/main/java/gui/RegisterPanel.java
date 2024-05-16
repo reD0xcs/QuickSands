@@ -77,7 +77,7 @@ public class RegisterPanel extends BasePanel {
         registerButton.setFont(new Font("Dialog", Font.PLAIN, 23));
         registerButton.setBounds(50 + 109, 480, 210, 45);
         registerButton.setCursor(cursor);
-        registerButton.setForeground(Color.WHITE);
+        registerButton.setForeground(Color.decode("#D9D9D9"));
         registerButton.addActionListener(e -> {
             String first_name = fnameField.getText();
             String last_name = lnameField.getText();

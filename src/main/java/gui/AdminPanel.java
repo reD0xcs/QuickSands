@@ -78,28 +78,31 @@ public class AdminPanel extends BasePanel{
         add(adminTitle);
 
         //Buttons
-        RButton userDataButton = new RButton("User Data", Color.WHITE, Color.decode("#00B7F0"), Color.decode("#AAAAAA"));
+        RButton userDataButton = new RButton("User Data", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         userDataButton.setBounds(100, 170, 430, 100);
         userDataButton.setCursor(cursor);
         userDataButton.setFont(new Font("Dialog", Font.PLAIN, 40));
+        userDataButton.setForeground(Color.decode("#D9D9D9"));
         userDataButton.addActionListener(e->{
             //Set the User Data scene;
         });
         add(userDataButton);
 
-        RButton addNewOfferButton = new RButton("Add Accomodation", Color.WHITE, Color.decode("#00B7F0"), Color.decode("#AAAAAA"));
+        RButton addNewOfferButton = new RButton("Add Accomodation", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         addNewOfferButton.setBounds(100, 300, 430, 100);
         addNewOfferButton.setCursor(cursor);
         addNewOfferButton.setFont(new Font("Dialog", Font.PLAIN, 40));
+        addNewOfferButton.setForeground(Color.decode("#D9D9D9"));
         addNewOfferButton.addActionListener(e->{
             offer(e);
         });
         add(addNewOfferButton);
 
-        RButton logOffButton = new RButton("LogOut", Color.WHITE, Color.decode("#00B7f0"), Color.decode("#AAAAAA"));
+        RButton logOffButton = new RButton("LogOut", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         logOffButton.setBounds(100, 430, 430, 100);
         logOffButton.setCursor(cursor);
         logOffButton.setFont(new Font("Dialog", Font.PLAIN, 40));
+        logOffButton.setForeground(Color.decode("#D9D9D9"));
         logOffButton.addActionListener(e->{
             frame.changePanel(new LoginPanel(frame));
         });

@@ -70,7 +70,7 @@ public class LoginPanel extends BasePanel {
         loginButton.setBounds(50 + 109, 400, 210, 45);
         loginButton.setCursor(cursor);
         loginButton.setFont(new Font("Dialog", Font.BOLD, 23));
-        loginButton.setForeground(Color.WHITE);
+        loginButton.setForeground(Color.decode("#D9D9D9"));
         loginButton.addActionListener(e -> {
             String email = emailField.getText();
             String password = String.valueOf(passwordField.getPassword());

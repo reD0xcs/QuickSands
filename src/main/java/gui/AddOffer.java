@@ -74,10 +74,11 @@ public class AddOffer extends JPanel {
         String[] paths = new String[25];
 
         // Add upload button
-        RButton uploadButton = new RButton("Upload", Color.WHITE, Color.decode("#00B7F0"), Color.decode("#AAAAAA"));
+        RButton uploadButton = new RButton("Upload", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         uploadButton.setCursor(cursor);
         uploadButton.setFont(new Font("Dialog", Font.PLAIN, 23));
         uploadButton.setBounds(280, 380, 220, 70);
+        uploadButton.setForeground(Color.decode("#D9D9D9"));
         uploadButton.addActionListener(e -> {
             String lastDirectory = Preferences.userNodeForPackage(AddOffer.class).get("Images.lastDirectory", System.getProperty("user.home"));
             JFileChooser fc = new JFileChooser();
@@ -110,10 +111,11 @@ public class AddOffer extends JPanel {
         add(uploadButton);
 
         // Add add button
-        RButton addButton = new RButton("Add", Color.WHITE, Color.decode("#00B7F0"), Color.decode("#AAAAAA"));
+        RButton addButton = new RButton("Add", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         addButton.setCursor(cursor);
         addButton.setFont(new Font("Dialog", Font.PLAIN, 23));
         addButton.setBounds(30, 380, 220, 70);
+        addButton.setForeground(Color.decode("#D9D9D9"));
         addButton.addActionListener(e ->{
             /*
             String locationName = nameField.getText();
