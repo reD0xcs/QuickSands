@@ -21,7 +21,7 @@ public class RegisterPanel extends BasePanel {
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setSize(baseFrame.getWidth(), baseFrame.getHeight());
 
-        ImagePanel backgroundPanel = new ImagePanel("C:\\Users\\catal\\OneDrive\\Documents\\GitHub\\bookNgo\\src\\main\\resources\\design resources\\register.png");
+        ImagePanel backgroundPanel = new ImagePanel("src/main/resources/design resources/register.png");
         backgroundPanel.setSize(baseFrame.getWidth(), baseFrame.getHeight());
         layeredPane.add(backgroundPanel, JLayeredPane.DEFAULT_LAYER);
 

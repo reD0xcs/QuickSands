@@ -20,7 +20,7 @@ public class LoginPanel extends BasePanel {
         layeredPane.setSize(baseFrame.getWidth(), baseFrame.getHeight());
 
         // Add background image panel
-        ImagePanel backgroundPanel = new ImagePanel("C:\\Users\\catal\\OneDrive\\Documents\\GitHub\\bookNgo\\src\\main\\resources\\design resources\\login page.png");
+        ImagePanel backgroundPanel = new ImagePanel("src/main/resources/design resources/login page.png");
         backgroundPanel.setSize(baseFrame.getWidth(), baseFrame.getHeight());
         layeredPane.add(backgroundPanel, JLayeredPane.DEFAULT_LAYER);
 
