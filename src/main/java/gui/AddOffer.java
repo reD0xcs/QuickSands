@@ -71,7 +71,7 @@ public class AddOffer extends JPanel {
         add(descriptionArea);
 
 
-        String[] paths = new String[25];
+        ArrayList<String> paths = new ArrayList<>();
 
         // Add upload button
         RButton uploadButton = new RButton("Upload", Color.WHITE, Color.decode("#00B7F0"), Color.decode("#AAAAAA"));
@@ -96,7 +96,7 @@ public class AddOffer extends JPanel {
                 Image[] resizedImages = new Image[files.length];
                 for (int i = 0; i < files.length; i++) {
                     try {
-                        paths[i] = files[i].toString();
+                        paths.add(files[i].toString());
                         Image originalImage = ImageIO.read(files[i]);
                         resizedImages[i] = originalImage.getScaledInstance(800, 450, Image.SCALE_SMOOTH);
                     } catch (IOException ex) {
@@ -115,13 +115,22 @@ public class AddOffer extends JPanel {
         addButton.setFont(new Font("Dialog", Font.PLAIN, 23));
         addButton.setBounds(30, 380, 220, 70);
         addButton.addActionListener(e ->{
-            /*
+
             String locationName = nameField.getText();
             String locationDescription = descriptionArea.getText();
-            //Double locationPrice = Double.valueOf(priceField.getText());
-            FireBaseService.uploadImageToStorage(paths);
-            */
-
+            Double locationPrice = Double.valueOf(priceField.getText());
+            ArrayList<String> imageNames = new ArrayList<>();
+            for(String path : paths){
+                int lastIndexOffset = path.lastIndexOf("\\");
+                imageNames.add(path.substring(lastIndexOffset + 1));
+            }
+            try {
+                FireBaseService.uploadImages(paths, imageNames);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            FireBaseService.registerLocation(locationName, locationDescription, locationPrice, imageNames);
+            baseFrame.dispose();
         });
 
         add(addButton);

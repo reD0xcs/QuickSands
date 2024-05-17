@@ -1,7 +1,6 @@
 package DataBase;
 
 import com.google.api.core.ApiFuture;
-import com.google.api.services.storage.Storage;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.*;
 import com.google.cloud.storage.BlobInfo;
@@ -10,12 +9,20 @@ import com.google.cloud.storage.StorageOptions;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
-import com.google.firebase.cloud.StorageClient;
+import com.google.api.core.ApiFuture;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.storage.*;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.cloud.FirestoreClient;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firestore.v1.WriteRequest;
 
 import javax.swing.text.html.BlockView;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -97,8 +104,32 @@ public class FireBaseService {
         }
         return null;
     }
-    public static void test(String path){
+    public static void uploadImages(ArrayList<String> imagePaths, ArrayList<String> imageNames) throws IOException {
+        String serviceKey = "src/main/resources/key.json";
+        FileInputStream serviceAccountStream = new FileInputStream(serviceKey);
+        GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccountStream);
+        Storage storage = (Storage) StorageOptions.newBuilder().setCredentials(credentials).build().getService();
 
+        String bucketName = "proiectc-173b4.appspot.com";
+
+        for(int i = 0; i < imagePaths.size(); i++) {
+            storage.create(
+                    BlobInfo.newBuilder(bucketName, imageNames.get(i)).build(),
+                    Files.newInputStream(Paths.get(imagePaths.get(i)))
+            );
+        }
+    }
+    public static void registerLocation(String name, String description, Double price, ArrayList<String> imageNames){
+        try{
+            Map<String, Object> locationData = new HashMap<>();
+            locationData.put("name", name);
+            locationData.put("description", description);
+            locationData.put("price", price);
+            locationData.put("imageNames", imageNames);
+            database.collection("locations").add(locationData);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
 }

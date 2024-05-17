@@ -82,6 +82,7 @@ public class RegisterPanel extends BasePanel{
                     if(user != null){
                        baseframe.changePanel(new ProfilePanel(baseframe, user));
                    }
+                    break;
                 case 1:
                     JOptionPane.showMessageDialog(baseframe, "Error: Every field should be completed");
                     break;
