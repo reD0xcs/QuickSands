@@ -1,8 +1,10 @@
 package DataBase;
 
+import Components.HotelOffer;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.*;
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
@@ -12,15 +14,16 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.cloud.StorageClient;
 
+import javax.imageio.ImageIO;
 import javax.swing.text.html.BlockView;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class FireBaseService {
     private static volatile FireBaseService instance;
@@ -125,5 +128,48 @@ public class FireBaseService {
             e.printStackTrace();
         }
     }
+    public static ArrayList<HotelOffer> loadAllOffers(){
+        ArrayList<HotelOffer> offers = new ArrayList<>();
+        try{
+            QuerySnapshot querySnapshot = database.collection("locations").get().get();
+            for(QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
+                Map<String, Object> doc = (Map<String, Object>) document.getData();
+                String name = (String) doc.get("name");
+                String description = (String) doc.get("description");
+                Double price = (Double) doc.get("price");
+                ArrayList<String> imagesNames = (ArrayList<String>) doc.get("imageNames");
+                ArrayList<Image> images = downloadImages(imagesNames);
 
+                HotelOffer offer = new HotelOffer(name, description, price, images);
+                offers.add(offer);
+            }
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return offers;
+    }
+    public static ArrayList<Image> downloadImages(ArrayList<String> imageNames) throws IOException {
+        ArrayList<Image> images = new ArrayList<>();
+        String serviceKey = "src/main/resources/key.json";
+        FileInputStream serviceAccountStream = new FileInputStream(serviceKey);
+        GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccountStream);
+        com.google.cloud.storage.Storage storage = (Storage) StorageOptions.newBuilder().setCredentials(credentials).build().getService();
+
+        String bucketName = "proiectc-173b4.appspot.com";
+
+        for(int i = 0; i < imageNames.size(); i++){
+            Blob blob = storage.get(bucketName, imageNames.get(i));
+            if(blob != null){
+                byte[] imageData = blob.getContent();
+                BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imageData));
+                images.add(bufferedImage);
+            }
+        }
+
+        return images;
+    }
 }
