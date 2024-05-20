@@ -129,17 +129,23 @@ public class AddOffer extends JPanel {
             String locationName = nameField.getText();
             String locationDescription = descriptionArea.getText();
             Double locationPrice = Double.valueOf(priceField.getText());
+            String locationPlace = locationField.getText();
             ArrayList<String> imageNames = new ArrayList<>();
             for(String path : paths){
                 int lastIndexOffset = path.lastIndexOf("\\");
                 imageNames.add(path.substring(lastIndexOffset + 1));
             }
-            try {
-                FireBaseService.uploadImages(paths, imageNames);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
+            if(locationName.isEmpty() || locationDescription.isEmpty() || locationPrice.isNaN() || locationPlace.isEmpty()){
+                JOptionPane.showMessageDialog(baseFrame, "Complete every field before trying to add a new location");
             }
-            FireBaseService.registerLocation(locationName, locationDescription, locationPrice, imageNames);
+            else{
+                try {
+                    FireBaseService.uploadImages(paths, imageNames);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+                FireBaseService.registerLocation(locationName, locationDescription, locationPrice, imageNames, locationPlace);
+            }
             baseFrame.dispose();
         });
 

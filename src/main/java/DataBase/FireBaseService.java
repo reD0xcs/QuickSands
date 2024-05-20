@@ -116,13 +116,14 @@ public class FireBaseService {
             );
         }
     }
-    public static void registerLocation(String name, String description, Double price, ArrayList<String> imageNames){
+    public static void registerLocation(String name, String description, Double price, ArrayList<String> imageNames, String locationPlace){
         try{
             Map<String, Object> locationData = new HashMap<>();
             locationData.put("name", name);
             locationData.put("description", description);
             locationData.put("price", price);
             locationData.put("imageNames", imageNames);
+            locationData.put("location", locationPlace);
             database.collection("locations").add(locationData);
         }catch(Exception e){
             e.printStackTrace();
