@@ -141,10 +141,10 @@ public class RegisterPanel extends BasePanel {
         if (!validateEmail(email)) {
             return 3;
         }
-        if (validateName(first_name)) {
+        if (!validateName(first_name)) {
             return 4;
         }
-        if (validateName(last_name)) {
+        if (!validateName(last_name)) {
             return 5;
         }
         return 0;

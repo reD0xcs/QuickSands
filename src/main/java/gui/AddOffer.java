@@ -31,7 +31,7 @@ public class AddOffer extends JPanel {
 
         // Add title label
         JLabel title = new JLabel("Add Offer");
-        title.setBounds(0, 20, 600, 50);
+        title.setBounds(0, 0, 600, 50);
         title.setFont(new Font("Segoe UI", Font.BOLD, 35));
         title.setHorizontalAlignment(SwingConstants.CENTER);
         add(title);
@@ -57,13 +57,21 @@ public class AddOffer extends JPanel {
         priceField.setFont(new Font("Dialog", Font.PLAIN, 23));
         add(priceField);
 
+        JTextField locationField = new JTextField();
+        TextPrompt locationPrompt = new TextPrompt("Location:", locationField);
+        locationPrompt.setFont(new Font("Dialog", Font.PLAIN, 23));
+        locationPrompt.setForeground(Color.decode("#AAAAAA"));
+        locationField.setBounds(30, 250, getWidth() / 2 - 220, 40);
+        locationField.setFont(new Font("Dialog", Font.PLAIN, 23));
+        add(locationField);
+
         // Add description area
         JTextArea descriptionArea = new JTextArea();
         TextPrompt descriptionPrompt = new TextPrompt("Description:", descriptionArea);
         descriptionPrompt.setFont(new Font("Dialog", Font.PLAIN, 23));
         descriptionPrompt.setVerticalAlignment(JLabel.TOP);
         descriptionPrompt.setForeground(Color.decode("#AAAAAA"));
-        descriptionArea.setBounds(30, 250, getWidth() / 2 - 110 - 110, 80);
+        descriptionArea.setBounds(30, 320, getWidth() / 2 - 110 - 110, 80);
         descriptionArea.setLineWrap(true);
         descriptionArea.setWrapStyleWord(true);
         descriptionArea.setBorder(nameField.getBorder());
@@ -77,7 +85,7 @@ public class AddOffer extends JPanel {
         RButton uploadButton = new RButton("Upload", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         uploadButton.setCursor(cursor);
         uploadButton.setFont(new Font("Dialog", Font.PLAIN, 23));
-        uploadButton.setBounds(280, 380, 220, 70);
+        uploadButton.setBounds(280, 450, 220, 70);
         uploadButton.setForeground(Color.decode("#D9D9D9"));
         uploadButton.addActionListener(e -> {
             String lastDirectory = Preferences.userNodeForPackage(AddOffer.class).get("Images.lastDirectory", System.getProperty("user.home"));
@@ -114,7 +122,7 @@ public class AddOffer extends JPanel {
         RButton addButton = new RButton("Add", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         addButton.setCursor(cursor);
         addButton.setFont(new Font("Dialog", Font.PLAIN, 23));
-        addButton.setBounds(30, 380, 220, 70);
+        addButton.setBounds(30, 450, 220, 70);
         addButton.setForeground(Color.decode("#D9D9D9"));
         addButton.addActionListener(e ->{
 
