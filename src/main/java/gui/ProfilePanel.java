@@ -16,10 +16,10 @@ import java.util.Objects;
 
 public class ProfilePanel extends BasePanel {
     private final User user;
-    public static BaseFrame addReservationFrame = new BaseFrame(1400, 600);
 
     private void reservation(ActionEvent e, ArrayList<HotelOffer> hotelOffer, int index){
-        AddReservation addReservation = new AddReservation(addReservationFrame, hotelOffer, index);
+        BaseFrame addReservationFrame = new BaseFrame(1400, 600);
+        AddReservation addReservation = new AddReservation(addReservationFrame, hotelOffer.get(index), index);
         addReservationFrame.add(addReservation);
         addReservationFrame.setLocationRelativeTo(null);
         addReservationFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -82,30 +82,44 @@ public class ProfilePanel extends BasePanel {
         travelAppLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(travelAppLabel, BorderLayout.NORTH);
 
-        // Wrap offersPanel in a container to center it
+        // Container panel with GridBagLayout
         JPanel containerPanel = new JPanel();
         containerPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.anchor = GridBagConstraints.NORTH;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(10, 10, 10, 10);
 
+        // Menu panel
+        JPanel menuPanel = createMenuPanel();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0.2;
+        gbc.weighty = 1;
+        containerPanel.add(menuPanel, gbc);
+
+        // Offers panel
         JPanel offersPanel = new JPanel();
         offersPanel.setLayout(new BoxLayout(offersPanel, BoxLayout.Y_AXIS));
-
         for (int i = 0; i < hotelOffers.size(); i++) {
-            JPanel offerPanel = createOfferPanel(hotelOffers.get(i), i, hotelOffers); // Pass index i
+            JPanel offerPanel = createOfferPanel(hotelOffers.get(i), i, hotelOffers);
             offerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
             offersPanel.add(offerPanel);
-            offersPanel.add(Box.createVerticalStrut(10)); // Add space between offers
+            offersPanel.add(Box.createVerticalStrut(10));
         }
 
-        containerPanel.add(offersPanel, gbc);
+        // Add the offers panel to a JScrollPane
+        JScrollPane offersScrollPane = new JScrollPane(offersPanel);
+        offersScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-        JScrollPane scrollPane = new JScrollPane(containerPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        add(scrollPane, BorderLayout.CENTER);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 0.8;
+        gbc.weighty = 1;
+        containerPanel.add(offersScrollPane, gbc);
+
+        add(containerPanel, BorderLayout.CENTER);
     }
+
 
     private JPanel createOfferPanel(HotelOffer offer, int index, ArrayList<HotelOffer> hotelOffers) {
         JPanel panel = new JPanel();
@@ -156,4 +170,20 @@ public class ProfilePanel extends BasePanel {
 
         return panel;
     }
+    private JPanel createMenuPanel() {
+        JPanel menuPanel = new JPanel();
+        menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
+
+        String[] buttonLabels = {"Home", "Profile", "Reservations", "Settings", "Logout"};
+        for (String label : buttonLabels) {
+            JButton button = new JButton(label);
+            button.setAlignmentX(Component.CENTER_ALIGNMENT);
+            button.setPreferredSize(new Dimension(150, 40));
+            menuPanel.add(button);
+            menuPanel.add(Box.createVerticalStrut(10)); // Add space between buttons
+        }
+
+        return menuPanel;
+    }
+
 }

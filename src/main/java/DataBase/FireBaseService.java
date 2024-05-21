@@ -138,10 +138,11 @@ public class FireBaseService {
                 String name = (String) doc.get("name");
                 String description = (String) doc.get("description");
                 Double price = (Double) doc.get("price");
+                String location = (String) doc.get("location");
                 ArrayList<String> imagesNames = (ArrayList<String>) doc.get("imageNames");
                 ArrayList<Image> images = downloadImages(imagesNames);
 
-                HotelOffer offer = new HotelOffer(name, description, price, images);
+                HotelOffer offer = new HotelOffer(name, description, price, images, location);
                 offers.add(offer);
             }
         } catch (ExecutionException e) {

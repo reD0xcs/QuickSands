@@ -10,13 +10,15 @@ public class RButton extends JButton {
     private final Color bgColor;
     private final Color borderColor;
     private final Color hoverColor;
+    private int index;
     private boolean hover;
 
-    public RButton(String text, Color bgColor, Color borderColor, Color hoverColor) {
+    public RButton(String text, Color bgColor, Color borderColor, Color hoverColor, int i) {
         super(text);
         this.bgColor = bgColor;
         this.borderColor = borderColor;
         this.hoverColor = hoverColor;
+        this.index = i;
 
         setUI(new BasicButtonUI());
         setContentAreaFilled(false);
@@ -39,6 +41,39 @@ public class RButton extends JButton {
                 repaint();
             }
         });
+    }
+
+    public RButton(String text, Color bgColor, Color borderColor, Color hoverColor) {
+        super(text);
+        this.bgColor = bgColor;
+        this.borderColor = borderColor;
+        this.hoverColor = hoverColor;
+        this.index = 0;
+
+        setUI(new BasicButtonUI());
+        setContentAreaFilled(false);
+        setBorderPainted(false);
+        setOpaque(false);
+
+        Font buttonFont = getFont();
+        setFont(buttonFont.deriveFont(buttonFont.getSize() * 3f));
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                hover = true;
+                repaint();
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                hover = false;
+                repaint();
+            }
+        });
+    }
+    public int getIndex(){
+        return index;
     }
     @Override
     protected void paintComponent(Graphics g) {

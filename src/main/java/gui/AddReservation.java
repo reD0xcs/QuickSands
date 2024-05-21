@@ -11,15 +11,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class AddReservation extends JPanel {
-    private DefaultImageController imageController;
-    private DefaultNavigationController navigationController;
+    private DefaultImageController imageController = new DefaultImageController(new DefaultImageViewPane(), new DefaultImageModel(new ArrayList<>()));
+    private DefaultNavigationController navigationController = new DefaultNavigationController(new DefaultNavigationView(), new DefaultNavigationModel(0, 4));
 
-    public AddReservation(BaseFrame baseFrame, ArrayList<HotelOffer> hotelOffers, int index) {
+    public AddReservation(BaseFrame baseFrame, HotelOffer offer, int index) {
         setSize(1400, 600);
         setLayout(null);
 
         // Clear previous components if any
-        removeAll();
 
         JLabel title = new JLabel("Add Reservation");
         title.setBounds(0, 20, 600, 50);
@@ -29,15 +28,20 @@ public class AddReservation extends JPanel {
 
         Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
 
+        Image[] resizedImages = new Image[offer.getHotelImages().size()];
+        for (int i = 0; i < offer.getHotelImages().size(); i++) {
+            resizedImages[i] = offer.getHotelImages().get(i).getScaledInstance(800, 450, Image.SCALE_SMOOTH);
+        }
+
         // Create image view and controller
         ImageView imageView = new DefaultImageViewPane();
-        ImageModel imageModel = new DefaultImageModel(hotelOffers.get(index).getHotelImages());
-        imageController = new DefaultImageController(imageView, imageModel);
-        imageController.setModel(imageModel);
-
+        imageController = new DefaultImageController(imageView, new DefaultImageModel(Arrays.asList(resizedImages)));
+        JScrollPane imageScrollPane = new JScrollPane(imageController.getView().getView());
+        imageScrollPane.setBounds(540, 40, 810, 460);
+        add(imageScrollPane);
         // Create navigation controller
         NavigationView navView = new DefaultNavigationView();
-        NavigationModel navModel = new DefaultNavigationModel(0, hotelOffers.get(index).getHotelImages().size());
+        NavigationModel navModel = new DefaultNavigationModel(0, 0);
         navigationController = new DefaultNavigationController(navView, navModel);
         navigationController.addChangeListener(new ChangeListener() {
             @Override
@@ -47,19 +51,9 @@ public class AddReservation extends JPanel {
             }
         });
 
-        // Load images for the current hotel offer
-        Image[] resizedImages = new Image[hotelOffers.get(index).getHotelImages().size()];
-        for (int i = 0; i < hotelOffers.get(index).getHotelImages().size(); i++) {
-            resizedImages[i] = hotelOffers.get(index).getHotelImages().get(i).getScaledInstance(800, 450, Image.SCALE_SMOOTH);
-        }
-        imageController.setModel(new DefaultImageModel(Arrays.asList(resizedImages)));
-        navigationController.setModel(new DefaultNavigationModel(0, hotelOffers.get(index).getHotelImages().size()));
-
         // Add image scroll pane and navigation panel to this panel
-        JScrollPane imageScrollPane = new JScrollPane(imageController.getView().getView());
-        imageScrollPane.setBounds(540, 40, 810, 460);
-        add(imageScrollPane);
 
+        navigationController.setModel(new DefaultNavigationModel(0, resizedImages.length));
         JPanel navPanel = (JPanel) navigationController.getView().getView();
         navPanel.setPreferredSize(new Dimension(100, getHeight()));
         navPanel.setBounds(750, 480, 300, getHeight() / 6);

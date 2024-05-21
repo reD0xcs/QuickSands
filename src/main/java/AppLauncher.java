@@ -1,4 +1,5 @@
 import DataBase.FireBaseService;
+import DataBase.User;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.Firestore;
@@ -10,6 +11,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firestore.v1.WriteRequest;
 import gui.BaseFrame;
+import gui.ProfilePanel;
 
 import javax.swing.*;
 import java.io.File;
@@ -25,6 +27,7 @@ public class AppLauncher {
 
         SwingUtilities.invokeLater(() -> {
             BaseFrame baseFrame = new BaseFrame();
+            baseFrame.changePanel(new ProfilePanel(baseFrame, new User()));
             baseFrame.setVisible(true);
         });
     }
