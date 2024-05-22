@@ -2,6 +2,8 @@ package gui;
 
 import Components.HotelOffer;
 import Components.RButton;
+import Components.RoomOffer;
+import Components.SQButton;
 import DataBase.FireBaseService;
 import DataBase.User;
 
@@ -17,9 +19,9 @@ import java.util.Objects;
 public class ProfilePanel extends BasePanel {
     private final User user;
 
-    private void reservation(ActionEvent e, ArrayList<HotelOffer> hotelOffer, int index){
+    private void reservation(ActionEvent e, ArrayList<RoomOffer> roomOffers, int index){
         BaseFrame addReservationFrame = new BaseFrame(1400, 600);
-        AddReservation addReservation = new AddReservation(addReservationFrame, hotelOffer.get(index), index);
+        AddReservation addReservation = new AddReservation(addReservationFrame, roomOffers.get(index), index);
         addReservationFrame.add(addReservation);
         addReservationFrame.setLocationRelativeTo(null);
         addReservationFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -48,7 +50,7 @@ public class ProfilePanel extends BasePanel {
 
     @Override
     public void addComponents(BaseFrame frame) {
-        ArrayList<HotelOffer> hotelOffers = FireBaseService.loadAllOffers();
+        ArrayList<RoomOffer> roomOffers = FireBaseService.loadAllOffers();
         Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
         setLayout(new BorderLayout());
 
@@ -100,8 +102,8 @@ public class ProfilePanel extends BasePanel {
         // Offers panel
         JPanel offersPanel = new JPanel();
         offersPanel.setLayout(new BoxLayout(offersPanel, BoxLayout.Y_AXIS));
-        for (int i = 0; i < hotelOffers.size(); i++) {
-            JPanel offerPanel = createOfferPanel(hotelOffers.get(i), i, hotelOffers);
+        for (int i = 0; i < roomOffers.size(); i++) {
+            JPanel offerPanel = createOfferPanel(roomOffers.get(i), i, roomOffers);
             offerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
             offersPanel.add(offerPanel);
             offersPanel.add(Box.createVerticalStrut(10));
@@ -121,23 +123,23 @@ public class ProfilePanel extends BasePanel {
     }
 
 
-    private JPanel createOfferPanel(HotelOffer offer, int index, ArrayList<HotelOffer> hotelOffers) {
+    private JPanel createOfferPanel(RoomOffer offer, int index, ArrayList<RoomOffer> roomOffers) {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
         panel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
         panel.setPreferredSize(new Dimension(700, 300)); // Set a preferred size for the panel
 
-        JLabel hotelNameLabel = new JLabel(offer.getHotelName());
-        hotelNameLabel.setFont(new Font("Dialog", Font.BOLD, 20));
-        hotelNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        JLabel roomTypeLabel = new JLabel(offer.getRoomType());
+        roomTypeLabel.setFont(new Font("Dialog", Font.BOLD, 20));
+        roomTypeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JLabel hotelPriceLabel = new JLabel("Price: $" + offer.getHotelprice());
-        hotelPriceLabel.setFont(new Font("Dialog", Font.PLAIN, 16));
-        hotelPriceLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        JLabel roomPriceLabel = new JLabel("Price: $" + offer.getRoomPricePerNight());
+        roomPriceLabel.setFont(new Font("Dialog", Font.PLAIN, 16));
+        roomPriceLabel.setHorizontalAlignment(SwingConstants.LEFT);
 
         ImageIcon imageIcon = null;
-        if (!offer.getHotelImages().isEmpty()) {
-            Image image = offer.getHotelImages().get(0);
+        if (!offer.getRoomImages().isEmpty()) {
+            Image image = offer.getRoomImages().get(0);
             Image scaledImage = image.getScaledInstance(500, 500, Image.SCALE_SMOOTH);
             imageIcon = new ImageIcon(scaledImage);
         }
@@ -153,15 +155,15 @@ public class ProfilePanel extends BasePanel {
         bookButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Clicked on Book Now for offer #" + (index + 1));
-                reservation(e, hotelOffers, index);
+                //System.out.println("Clicked on Book Now for offer #" + (index + 1));
+                reservation(e, roomOffers, index);
             }
         });
 
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        infoPanel.add(hotelNameLabel);
-        infoPanel.add(hotelPriceLabel);
+        infoPanel.add(roomTypeLabel);
+        infoPanel.add(roomPriceLabel);
         infoPanel.add(Box.createVerticalStrut(20));
         infoPanel.add(bookButton);
 
@@ -172,15 +174,39 @@ public class ProfilePanel extends BasePanel {
     }
     private JPanel createMenuPanel() {
         JPanel menuPanel = new JPanel();
-        menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
+        menuPanel.setLayout(new GridBagLayout());
+        menuPanel.setBackground(Color.decode("#333333")); // Dark background color
 
         String[] buttonLabels = {"Home", "Profile", "Reservations", "Settings", "Logout"};
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = GridBagConstraints.RELATIVE;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.insets = new Insets(5, 0, 5, 0); // Spacing between buttons
+
         for (String label : buttonLabels) {
-            JButton button = new JButton(label);
-            button.setAlignmentX(Component.CENTER_ALIGNMENT);
-            button.setPreferredSize(new Dimension(150, 40));
-            menuPanel.add(button);
-            menuPanel.add(Box.createVerticalStrut(10)); // Add space between buttons
+            SQButton button = new SQButton(label, Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+            button.setFont(new Font("Dialog", Font.PLAIN, 18)); // Larger font size
+            button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            // Set button size to match the menu panel width
+            button.setPreferredSize(new Dimension(Integer.MAX_VALUE, 50));
+            button.setMinimumSize(new Dimension(450, 50));
+            button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+
+            // Add hover effect
+            button.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseEntered(java.awt.event.MouseEvent evt) {
+                    button.setBackground(Color.decode("#555555"));
+                }
+
+                public void mouseExited(java.awt.event.MouseEvent evt) {
+                    button.setBackground(Color.decode("#7A4641"));
+                }
+            });
+
+            menuPanel.add(button, gbc);
         }
 
         return menuPanel;

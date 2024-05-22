@@ -1,6 +1,8 @@
 package DataBase;
 
 import Components.HotelOffer;
+import Components.RoomOffer;
+import Components.roomTypes;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.*;
@@ -129,20 +131,33 @@ public class FireBaseService {
             e.printStackTrace();
         }
     }
-    public static ArrayList<HotelOffer> loadAllOffers(){
-        ArrayList<HotelOffer> offers = new ArrayList<>();
+    public static void registerOffer(String description, Double price, ArrayList<String> imageNames, roomTypes type){
         try{
-            QuerySnapshot querySnapshot = database.collection("locations").get().get();
+            Map<String, Object> offerData = new HashMap<>();
+            offerData.put("description", description);
+            offerData.put("price", price);
+            offerData.put("imageNames", imageNames);
+            offerData.put("type", type.toString());
+            database.collection("offers").add(offerData);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public static ArrayList<RoomOffer> loadAllOffers(){
+        ArrayList<RoomOffer> offers = new ArrayList<>();
+        try{
+            QuerySnapshot querySnapshot = database.collection("offers").get().get();
             for(QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
                 Map<String, Object> doc = (Map<String, Object>) document.getData();
-                String name = (String) doc.get("name");
+                String id = (String) doc.get("id");
                 String description = (String) doc.get("description");
                 Double price = (Double) doc.get("price");
-                String location = (String) doc.get("location");
                 ArrayList<String> imagesNames = (ArrayList<String>) doc.get("imageNames");
+                String roomType = (String) doc.get("type");
                 ArrayList<Image> images = downloadImages(imagesNames);
 
-                HotelOffer offer = new HotelOffer(name, description, price, images, location);
+                RoomOffer offer = new RoomOffer(id, description, price, roomType, images);
                 offers.add(offer);
             }
         } catch (ExecutionException e) {
@@ -154,6 +169,7 @@ public class FireBaseService {
         }
         return offers;
     }
+
     public static ArrayList<Image> downloadImages(ArrayList<String> imageNames) throws IOException {
         ArrayList<Image> images = new ArrayList<>();
         String serviceKey = "src/main/resources/key.json";

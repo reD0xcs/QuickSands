@@ -71,11 +71,19 @@ public class RegisterPanel extends BasePanel {
         passwordField.setFont(new Font("Dialog", Font.PLAIN, 23));
         componentsPanel.add(passwordField);
 
+        JPasswordField passwordRepeatField = new JPasswordField();
+        TextPrompt passwordRepeatPrompt = new TextPrompt("Repeat Password:", passwordRepeatField);
+        passwordRepeatPrompt.setFont(new Font("Dialog", Font.ITALIC, 23));
+        passwordRepeatPrompt.setForeground(Color.decode("#AAAAAA"));
+        passwordRepeatField.setBounds(50, 480, baseFrame.getWidth() / 3, 40);
+        passwordRepeatField.setFont(new Font("Dialog", Font.PLAIN, 23));
+        componentsPanel.add(passwordRepeatField);
+
         Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
 
         RButton registerButton = new RButton("Register", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         registerButton.setFont(new Font("Dialog", Font.PLAIN, 23));
-        registerButton.setBounds(50 + 109, 480, 210, 45);
+        registerButton.setBounds(50 + 109, 550, 210, 45);
         registerButton.setCursor(cursor);
         registerButton.setForeground(Color.decode("#D9D9D9"));
         registerButton.addActionListener(e -> {
@@ -83,8 +91,9 @@ public class RegisterPanel extends BasePanel {
             String last_name = lnameField.getText();
             String email = emailField.getText();
             String password = String.valueOf(passwordField.getPassword());
+            String repeatedPassword = String.valueOf(passwordRepeatField.getPassword());
 
-            int validate = validateUserInput(first_name, last_name, email, password);
+            int validate = validateUserInput(first_name, last_name, email, password, repeatedPassword);
             switch (validate) {
                 case 0:
                     String role = "user";
@@ -113,12 +122,14 @@ public class RegisterPanel extends BasePanel {
                 case 5:
                     JOptionPane.showMessageDialog(baseFrame, "Error: the last name should only contain letters");
                     break;
+                case 6:
+                    JOptionPane.showMessageDialog(baseFrame, "Error: passwords do not match");
             }
         });
         componentsPanel.add(registerButton);
 
         JLabel loginLabel = new JLabel("<html><a href=\"#\">Already have an account? Login Here</a></html>");
-        loginLabel.setBounds(50, 550, baseFrame.getWidth() / 3, 30);
+        loginLabel.setBounds(50, 600, baseFrame.getWidth() / 3, 30);
         loginLabel.setFont(new Font("Dialog", Font.PLAIN, 20));
         loginLabel.setHorizontalAlignment(SwingConstants.CENTER);
         loginLabel.setCursor(cursor);
@@ -131,8 +142,8 @@ public class RegisterPanel extends BasePanel {
         componentsPanel.add(loginLabel);
     }
 
-    private int validateUserInput(String first_name, String last_name, String email, String password) {
-        if (first_name.isEmpty() || last_name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+    private int validateUserInput(String first_name, String last_name, String email, String password, String repeatedPassword) {
+        if (first_name.isEmpty() || last_name.isEmpty() || email.isEmpty() || password.isEmpty() || repeatedPassword.isEmpty()) {
             return 1;
         }
         if (!validatePassword(password)) {
@@ -146,6 +157,9 @@ public class RegisterPanel extends BasePanel {
         }
         if (!validateName(last_name)) {
             return 5;
+        }
+        if(!password.equals(repeatedPassword)){
+            return 6;
         }
         return 0;
     }

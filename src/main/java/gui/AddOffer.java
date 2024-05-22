@@ -2,6 +2,7 @@ package gui;
 
 import Components.RButton;
 import Components.TextPrompt;
+import Components.roomTypes;
 import DataBase.FireBaseService;
 
 import javax.imageio.ImageIO;
@@ -23,6 +24,7 @@ import java.util.prefs.Preferences;
 public class AddOffer extends JPanel {
     private DefaultImageController imageController;
     private DefaultNavigationController navigationController;
+    private roomTypes selectedType = null;
 
     public AddOffer(BaseFrame baseFrame) {
         setSize(1400, 600);
@@ -39,14 +41,21 @@ public class AddOffer extends JPanel {
 
         Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
 
+
+
         // Add location name field
-        JTextField nameField = new JTextField();
-        TextPrompt namePrompt = new TextPrompt("Location Name:", nameField);
-        namePrompt.setFont(new Font("Dialog", Font.PLAIN, 23));
-        namePrompt.setForeground(Color.decode("#AAAAAA"));
-        nameField.setBounds(30, 110, getWidth() / 2 - 110 - 110, 40);
-        nameField.setFont(new Font("Dialog", Font.PLAIN, 23));
-        add(nameField);
+        JComboBox<roomTypes> typeComboBox = new JComboBox<>(roomTypes.values());
+        typeComboBox.setFont(new Font("Dialog", Font.PLAIN, 23));
+        typeComboBox.setForeground(Color.decode("#AAAAAA"));
+        typeComboBox.setBounds(30, 110, getWidth() / 2 - 220, 40);
+        typeComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox<roomTypes> typeComboBox = (JComboBox<roomTypes>) e.getSource();
+                selectedType =(roomTypes) typeComboBox.getSelectedItem();
+            }
+        });
+        add(typeComboBox);
 
         // Add price for location
         JTextField priceField = new JTextField();
@@ -57,24 +66,16 @@ public class AddOffer extends JPanel {
         priceField.setFont(new Font("Dialog", Font.PLAIN, 23));
         add(priceField);
 
-        JTextField locationField = new JTextField();
-        TextPrompt locationPrompt = new TextPrompt("Location:", locationField);
-        locationPrompt.setFont(new Font("Dialog", Font.PLAIN, 23));
-        locationPrompt.setForeground(Color.decode("#AAAAAA"));
-        locationField.setBounds(30, 250, getWidth() / 2 - 220, 40);
-        locationField.setFont(new Font("Dialog", Font.PLAIN, 23));
-        add(locationField);
-
         // Add description area
         JTextArea descriptionArea = new JTextArea();
         TextPrompt descriptionPrompt = new TextPrompt("Description:", descriptionArea);
         descriptionPrompt.setFont(new Font("Dialog", Font.PLAIN, 23));
         descriptionPrompt.setVerticalAlignment(JLabel.TOP);
         descriptionPrompt.setForeground(Color.decode("#AAAAAA"));
-        descriptionArea.setBounds(30, 320, getWidth() / 2 - 110 - 110, 80);
+        descriptionArea.setBounds(30, 250, getWidth() / 2 - 110 - 110, 80);
         descriptionArea.setLineWrap(true);
         descriptionArea.setWrapStyleWord(true);
-        descriptionArea.setBorder(nameField.getBorder());
+        descriptionArea.setBorder(priceField.getBorder());
         descriptionArea.setFont(new Font("Dialog", Font.PLAIN, 23));
         add(descriptionArea);
 
@@ -126,27 +127,25 @@ public class AddOffer extends JPanel {
         addButton.setForeground(Color.decode("#D9D9D9"));
         addButton.addActionListener(e ->{
 
-            String locationName = nameField.getText();
-            String locationDescription = descriptionArea.getText();
-            Double locationPrice = Double.valueOf(priceField.getText());
-            String locationPlace = locationField.getText();
-            ArrayList<String> imageNames = new ArrayList<>();
-            for(String path : paths){
-                int lastIndexOffset = path.lastIndexOf("\\");
-                imageNames.add(path.substring(lastIndexOffset + 1));
-            }
-            if(locationName.isEmpty() || locationDescription.isEmpty() || locationPrice.isNaN() || locationPlace.isEmpty()){
+            if(descriptionArea.getText().isEmpty() || priceField.getText().isEmpty() || selectedType == null){
                 JOptionPane.showMessageDialog(baseFrame, "Complete every field before trying to add a new location");
             }
-            else{
+            else {
+                String roomDescription = descriptionArea.getText();
+                Double roomPrice = Double.valueOf(priceField.getText());
+                ArrayList<String> imageNames = new ArrayList<>();
+                for (String path : paths) {
+                    int lastIndexOffset = path.lastIndexOf("\\");
+                    imageNames.add(path.substring(lastIndexOffset + 1));
+                }
                 try {
                     FireBaseService.uploadImages(paths, imageNames);
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
-                FireBaseService.registerLocation(locationName, locationDescription, locationPrice, imageNames, locationPlace);
+                FireBaseService.registerOffer(roomDescription, roomPrice, imageNames, selectedType);
+                baseFrame.dispose();
             }
-            baseFrame.dispose();
         });
 
         add(addButton);

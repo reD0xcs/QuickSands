@@ -6,13 +6,13 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class RButton extends JButton {
+public class SQButton extends JButton {
     private final Color bgColor;
     private final Color borderColor;
     private final Color hoverColor;
     private boolean hover;
 
-    public RButton(String text, Color bgColor, Color borderColor, Color hoverColor) {
+    public SQButton(String text, Color bgColor, Color borderColor, Color hoverColor) {
         super(text);
         this.bgColor = bgColor;
         this.borderColor = borderColor;
@@ -49,13 +49,13 @@ public class RButton extends JButton {
         int offset = thickness / 2;
         g2.setStroke(new BasicStroke(thickness));
         g2.setColor(borderColor);
-        g2.drawRoundRect(offset, offset, getWidth() - thickness, getHeight() - thickness, 90, 90);
+        g2.drawRect(offset, offset, getWidth() - thickness, getHeight() - thickness);
         if (hover) {
             g2.setColor(hoverColor);
-            g2.fillRoundRect(0, 0, getWidth() - 2, getHeight() - 2, getHeight(), getHeight());
+            g2.fillRect(0, 0, getWidth() - 2, getHeight() - 2);
         } else {
             g2.setColor(bgColor);
-            g2.fillRoundRect(0, 0, getWidth() - 2, getHeight() - 2, getHeight(), getHeight());
+            g2.fillRect(0, 0, getWidth() - 2, getHeight() - 2);
         }
         g2.dispose();
 
@@ -69,21 +69,38 @@ public class RButton extends JButton {
         int offset = thickness / 2;
         g2.setStroke(new BasicStroke(thickness));
         g2.setColor(borderColor);
-        g2.drawRoundRect(offset, offset, getWidth() - thickness, getHeight() - thickness, getHeight(), getHeight());
+        g2.drawRect(offset, offset, getWidth() - thickness, getHeight() - thickness);
         g2.dispose();
     }
+
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(150, 50);
+        int size = 100;  // Default size
+        return new Dimension(size, size);
     }
+
     @Override
     public Dimension getMinimumSize() {
         return getPreferredSize();
     }
+
     @Override
     public Dimension getMaximumSize() {
         return getPreferredSize();
     }
 
-}
+    @Override
+    public void setBounds(int x, int y, int width, int height) {
+        super.setBounds(x, y, width, height);
+    }
 
+    @Override
+    public void setSize(int width, int height) {
+        super.setSize(width, height);
+    }
+
+    @Override
+    public void setPreferredSize(Dimension size) {
+        super.setPreferredSize(new Dimension(size.width, size.height));
+    }
+}
