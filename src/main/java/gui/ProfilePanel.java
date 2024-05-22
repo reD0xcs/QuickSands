@@ -175,7 +175,7 @@ public class ProfilePanel extends BasePanel {
     private JPanel createMenuPanel() {
         JPanel menuPanel = new JPanel();
         menuPanel.setLayout(new GridBagLayout());
-        menuPanel.setBackground(Color.decode("#333333")); // Dark background color
+        //menuPanel.setBackground(Color.decode("#333333")); // Dark background color
 
         String[] buttonLabels = {"Home", "Profile", "Reservations", "Settings", "Logout"};
         GridBagConstraints gbc = new GridBagConstraints();
