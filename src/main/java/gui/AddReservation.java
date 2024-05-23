@@ -106,7 +106,7 @@ public class AddReservation extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 if(firstDateSelected != null){
                     secondDateSelected = model2.getValue();
-                    if(secondDateSelected != null && (secondDateSelected.before(minDate) || secondDateSelected.before(firstDateSelected))){
+                    if(secondDateSelected != null && (secondDateSelected.before(minDate) || secondDateSelected.before(firstDateSelected) || secondDateSelected == firstDateSelected)){
                         Date default1 = new Date(firstDateSelected.getTime() + 24 * 60 * 60 * 1000);
                         model2.setValue(default1);
                         secondDateSelected = default1;
