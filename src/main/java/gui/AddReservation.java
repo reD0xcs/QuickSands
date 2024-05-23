@@ -2,10 +2,14 @@ package gui;
 
 import Components.RButton;
 import Components.RoomOffer;
+import Stripe.StripeConfig;
 import Stripe.StripePaymentProcessor;
+import Stripe.PaymentConfirmationService;
+import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentConfirmParams;
 import com.stripe.param.PaymentMethodCreateParams;
 import com.stripe.param.PaymentMethodCreateParams.CardDetails;
 import com.stripe.model.PaymentMethod;
@@ -22,11 +26,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Properties;
-import java.util.Calendar;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class AddReservation extends JPanel {
@@ -37,6 +37,7 @@ public class AddReservation extends JPanel {
     private JLabel priceLabel;
     private double finalPrice;
 
+    private final PaymentConfirmationService confirmationService = new PaymentConfirmationService();
     // Payment form elements
     private JTextField cardNumberField;
     private JTextField expirationDateField;
@@ -260,26 +261,8 @@ public class AddReservation extends JPanel {
                 StripePaymentProcessor processor = new StripePaymentProcessor();
                 PaymentIntent paymentIntent = processor.createPaymentIntent(finalPrice);
 
-                // Step 2: Handle the PaymentIntent status and create Customer and Payment Method if payment is successful
-                if ("requires_payment_method".equals(paymentIntent.getStatus())) {
-                    // Create PaymentMethod
-                    PaymentMethodCreateParams paymentMethodParams = PaymentMethodCreateParams.builder()
-                            .setType(PaymentMethodCreateParams.Type.CARD)
-                            .setCard(CardDetails.builder().setNumber(cardNumber)
-                            .setExpMonth(Long.parseLong(expirationDate.substring(0, 2)))
-                            .setExpYear(Long.parseLong("20" + expirationDate.substring(3)))  // Assuming YY format
-                            .setCvc(cvc)
-                            .build())
-                            .build();
-
-                    PaymentMethod paymentMethod = PaymentMethod.create(paymentMethodParams);
-
-                    // Handle success scenario
-                    JOptionPane.showMessageDialog(this, "Payment successful! Thank you for your reservation.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    // Handle other statuses if needed
-                    JOptionPane.showMessageDialog(this, "Payment failed. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
+                PaymentIntent cofirmedPaymentIntent = confirmationService.confirmPaymentIntent(paymentIntent.getId(), "pm_card_visa");
+                JOptionPane.showMessageDialog(this, "Payment successful! Thank you for your reservation.", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (StripeException e) {
                 // Handle Stripe API exceptions
                 JOptionPane.showMessageDialog(this, "Stripe API error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

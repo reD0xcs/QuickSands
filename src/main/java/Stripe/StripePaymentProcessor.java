@@ -22,6 +22,13 @@ public class StripePaymentProcessor {
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                                             .setAmount((long) (amount * 100))
                                             .setCurrency("usd")
+                                            .setPaymentMethod("pm_card_visa")
+                                            .setAutomaticPaymentMethods(
+                                                PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
+                                                    .setEnabled(true)
+                                                    .setAllowRedirects(PaymentIntentCreateParams.AutomaticPaymentMethods.AllowRedirects.NEVER)
+                                                    .build()
+                                            )
                                             .build();
         return PaymentIntent.create(params);
     }
