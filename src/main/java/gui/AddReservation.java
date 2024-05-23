@@ -5,6 +5,12 @@ import Components.RoomOffer;
 import Stripe.StripeConfig;
 import Stripe.StripePaymentProcessor;
 import Stripe.PaymentConfirmationService;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.property.UnitValue;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
@@ -86,6 +92,11 @@ public class AddReservation extends JPanel {
                     model1.setValue(minDate);
                     firstDateSelected = minDate;
                 }
+                else if(firstDateSelected != null && secondDateSelected != null && secondDateSelected == firstDateSelected){
+                    Date default1 = new Date(firstDateSelected.getTime() - 24 * 60 * 60 * 1000);
+                    model1.setValue(default1);
+                    secondDateSelected = default1;
+                }
                 updatePriceLabel(offer);
             }
         });
@@ -106,10 +117,15 @@ public class AddReservation extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 if(firstDateSelected != null){
                     secondDateSelected = model2.getValue();
-                    if(secondDateSelected != null && (secondDateSelected.before(minDate) || secondDateSelected.before(firstDateSelected) || secondDateSelected == firstDateSelected)){
-                        Date default1 = new Date(firstDateSelected.getTime() + 24 * 60 * 60 * 1000);
-                        model2.setValue(default1);
-                        secondDateSelected = default1;
+                    if(secondDateSelected != null && (secondDateSelected.before(minDate) || secondDateSelected.before(firstDateSelected))){
+                        Date default2 = new Date(firstDateSelected.getTime() + 24 * 60 * 60 * 1000);
+                        model2.setValue(default2);
+                        secondDateSelected = default2;
+                    }
+                    else if(secondDateSelected != null && secondDateSelected == firstDateSelected){
+                        Date default2 = new Date(firstDateSelected.getTime() + 2 * 24 * 60 * 60 * 1000);
+                        model2.setValue(default2);
+                        secondDateSelected = default2;
                     }
                     updatePriceLabel(offer);
                 }
@@ -244,7 +260,40 @@ public class AddReservation extends JPanel {
             }
         }
     }
+    private void createPdfReceipt(String cardholderName, String cardNumber, String expirationDate, double amount) {
+        String dest = "receipt.pdf";
+        try {
+            PdfWriter writer = new PdfWriter(dest);
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            Document document = new Document(pdfDoc);
 
+            // Add receipt title
+            document.add(new Paragraph("Payment Receipt").setBold().setFontSize(20));
+            document.add(new Paragraph("\n"));
+
+            // Add payment details
+            Table table = new Table(UnitValue.createPercentArray(new float[]{1, 2}));
+            table.addCell("Cardholder Name:");
+            table.addCell(cardholderName);
+            table.addCell("Card Number:");
+            table.addCell("**** **** **** " + cardNumber.substring(cardNumber.length() - 4));
+            table.addCell("Expiration Date:");
+            table.addCell(expirationDate);
+            table.addCell("Amount:");
+            table.addCell("$" + amount);
+
+            document.add(table);
+            document.close();
+
+            JOptionPane.showMessageDialog(this, "Receipt generated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (FileNotFoundException e) {
+            JOptionPane.showMessageDialog(this, "File not found error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Unexpected error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
 
     private void processPayment(BaseFrame baseFrame) {
         String cardNumber = cardNumberField.getText();
@@ -263,6 +312,8 @@ public class AddReservation extends JPanel {
 //testing
                 PaymentIntent cofirmedPaymentIntent = confirmationService.confirmPaymentIntent(paymentIntent.getId(), "pm_card_visa");
                 int result = JOptionPane.showConfirmDialog(this, "Payment successful! Thank you for your reservation.", "Success", JOptionPane.OK_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                createPdfReceipt(cardholderName, cardNumber, expirationDate, finalPrice);
+                String id = cofirmedPaymentIntent.getId();
                 if(result == JOptionPane.OK_OPTION){
                     baseFrame.dispose();
                 }
