@@ -2,10 +2,15 @@ package gui;
 
 import Components.RButton;
 import Components.RoomOffer;
-import DataBase.User;
 import Stripe.StripeConfig;
 import Stripe.StripePaymentProcessor;
 import Stripe.PaymentConfirmationService;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
@@ -33,6 +38,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -43,7 +51,7 @@ public class AddReservation extends JPanel {
     private java.util.Date secondDateSelected = null;
     private JLabel priceLabel;
     private double finalPrice;
-    private User user;
+
     private final PaymentConfirmationService confirmationService = new PaymentConfirmationService();
     // Payment form elements
     private JTextField cardNumberField;
@@ -51,10 +59,10 @@ public class AddReservation extends JPanel {
     private JTextField cvcField;
     private JTextField cardholderNameField;
 
-    public AddReservation(BaseFrame baseFrame, RoomOffer offer, User u) {
+    public AddReservation(BaseFrame baseFrame, RoomOffer offer, int index) {
         setSize(1400, 600);
         setLayout(null);
-        user = u;
+
         JLabel title = new JLabel("Add Reservation");
         title.setBounds(0, 20, 600, 50);
         title.setFont(new Font("Segoe UI", Font.BOLD, 35));
@@ -89,15 +97,14 @@ public class AddReservation extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 firstDateSelected = model1.getValue();
-                firstDateSelected = stripTime(firstDateSelected);
                 if (firstDateSelected != null && firstDateSelected.before(minDate)) {
-                    firstDateSelected = stripTime(firstDateSelected);
+                    model1.setValue(minDate);
                     firstDateSelected = minDate;
                 }
-                else if(firstDateSelected != null && secondDateSelected != null && secondDateSelected.equals(firstDateSelected)){
+                else if(firstDateSelected != null && secondDateSelected != null && secondDateSelected == firstDateSelected){
                     Date default1 = new Date(firstDateSelected.getTime() - 24 * 60 * 60 * 1000);
                     model1.setValue(default1);
-                    firstDateSelected = default1;
+                    secondDateSelected = default1;
                 }
                 updatePriceLabel(offer);
             }
@@ -119,19 +126,13 @@ public class AddReservation extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 if(firstDateSelected != null){
                     secondDateSelected = model2.getValue();
-                    secondDateSelected = stripTime(secondDateSelected);
-                    if(secondDateSelected != null && (secondDateSelected.before(minDate))){
+                    if(secondDateSelected != null && (secondDateSelected.before(minDate) || secondDateSelected.before(firstDateSelected))){
                         Date default2 = new Date(firstDateSelected.getTime() + 24 * 60 * 60 * 1000);
                         model2.setValue(default2);
                         secondDateSelected = default2;
                     }
-                    else if(secondDateSelected != null && secondDateSelected.before(firstDateSelected)){
-                        Date default2 = new Date(firstDateSelected.getTime() + 24 * 60 * 60 * 1000);
-                        model2.setValue(default2);
-                        secondDateSelected = default2;
-                    }
-                    else if(secondDateSelected != null && secondDateSelected.equals(firstDateSelected)){
-                        Date default2 = new Date(firstDateSelected.getTime() +  24 * 60 * 60 * 1000);
+                    else if(secondDateSelected != null && secondDateSelected == firstDateSelected){
+                        Date default2 = new Date(firstDateSelected.getTime() + 2 * 24 * 60 * 60 * 1000);
                         model2.setValue(default2);
                         secondDateSelected = default2;
                     }
@@ -303,6 +304,16 @@ public class AddReservation extends JPanel {
         }
     }
 
+    public static void generateQRCodeImage(String text, int width, int height, String filePath) throws WriterException, IOException {
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        Map<EncodeHintType, Object> hints = new HashMap<>();
+        hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+        BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height, hints);
+
+        Path path = FileSystems.getDefault().getPath(filePath);
+        MatrixToImageWriter.writeToPath(bitMatrix, "PNG", path);
+    }
+
     private void processPayment(BaseFrame baseFrame) {
         String cardNumber = cardNumberField.getText();
         String expirationDate = expirationDateField.getText();
@@ -321,7 +332,8 @@ public class AddReservation extends JPanel {
                 PaymentIntent cofirmedPaymentIntent = confirmationService.confirmPaymentIntent(paymentIntent.getId(), "pm_card_visa");
                 int result = JOptionPane.showConfirmDialog(this, "Payment successful! Thank you for your reservation.", "Success", JOptionPane.OK_OPTION, JOptionPane.INFORMATION_MESSAGE);
                 createPdfReceipt(cardholderName, cardNumber, expirationDate, finalPrice);
-                String description = cofirmedPaymentIntent.getDescription();
+                String id = cofirmedPaymentIntent.getId();
+
                 if(result == JOptionPane.OK_OPTION){
                     baseFrame.dispose();
                 }
@@ -340,17 +352,6 @@ public class AddReservation extends JPanel {
             }
         }
     }
-    private Date stripTime(Date date) {
-        if (date == null) {
-            return null;
-        }
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar.getTime();
-    }
+
 }
 

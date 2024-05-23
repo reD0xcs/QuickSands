@@ -42,7 +42,6 @@ public class LoginPanel extends BasePanel {
 
     @Override
     public void addComponents(BaseFrame baseFrame) {}
-
     public void addComponents(BaseFrame baseFrame, JPanel componentsPanel) {
         // Cursor
         Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
@@ -65,6 +64,23 @@ public class LoginPanel extends BasePanel {
         passwordField.setFont(new Font("Dialog", Font.PLAIN, 27));
         componentsPanel.add(passwordField);
 
+
+        // Add action listener to the password field
+        passwordField.addActionListener(e -> {
+            String email = emailField.getText();
+            String password = String.valueOf(passwordField.getPassword());
+
+            User user;
+            user = FireBaseService.verifyAccount(email, password);
+            if (user != null) {
+                if (user.getRole().equals("user")) {
+                    baseFrame.changePanel(new ProfilePanel(baseFrame, user));
+                } else {
+                    baseFrame.changePanel(new AdminPanel(baseFrame, user));
+                }
+            }
+        });
+
         // Buttons
         RButton loginButton = new RButton("Login", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         loginButton.setBounds(50 + 109, 400, 210, 45);
@@ -86,6 +102,7 @@ public class LoginPanel extends BasePanel {
             }
         });
         componentsPanel.add(loginButton);
+
 
         JLabel registerLabel = new JLabel("<html><a href=\"#\">Don't have an account? Register Here</a></html>");
         registerLabel.setBounds(50, 460, baseFrame.getWidth() / 3, 30);
