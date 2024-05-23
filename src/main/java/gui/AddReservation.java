@@ -260,7 +260,7 @@ public class AddReservation extends JPanel {
                 // Step 1: Process payment and retrieve PaymentIntent
                 StripePaymentProcessor processor = new StripePaymentProcessor();
                 PaymentIntent paymentIntent = processor.createPaymentIntent(finalPrice);
-
+//testing
                 PaymentIntent cofirmedPaymentIntent = confirmationService.confirmPaymentIntent(paymentIntent.getId(), "pm_card_visa");
                 JOptionPane.showMessageDialog(this, "Payment successful! Thank you for your reservation.", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (StripeException e) {
