@@ -86,6 +86,11 @@ public class AddReservation extends JPanel {
                     model1.setValue(minDate);
                     firstDateSelected = minDate;
                 }
+                else if(firstDateSelected != null && secondDateSelected != null && firstDateSelected == secondDateSelected){
+                    Date default1 = new Date(secondDateSelected.getTime() - 24 * 60 * 60 * 1000);
+                    model1.setValue(default1);
+                    secondDateSelected = default1;
+                }
                 updatePriceLabel(offer);
             }
         });
@@ -203,7 +208,7 @@ public class AddReservation extends JPanel {
         submitButton.setBounds(150, 420, 220, 70);
         submitButton.setForeground(Color.decode("#D9D9D9"));
         submitButton.addActionListener(e -> {
-            processPayment();
+            processPayment(baseFrame);
         });
         add(submitButton);
     }
@@ -246,7 +251,7 @@ public class AddReservation extends JPanel {
     }
 
 
-    private void processPayment() {
+    private void processPayment(BaseFrame baseFrame) {
         String cardNumber = cardNumberField.getText();
         String expirationDate = expirationDateField.getText();
         String cvc = cvcField.getText();
@@ -262,7 +267,10 @@ public class AddReservation extends JPanel {
                 PaymentIntent paymentIntent = processor.createPaymentIntent(finalPrice);
 //testing
                 PaymentIntent cofirmedPaymentIntent = confirmationService.confirmPaymentIntent(paymentIntent.getId(), "pm_card_visa");
-                JOptionPane.showMessageDialog(this, "Payment successful! Thank you for your reservation.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                int result = JOptionPane.showConfirmDialog(this, "Payment successful! Thank you for your reservation.", "Success", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                if(result == JOptionPane.OK_OPTION){
+                    baseFrame.dispose();
+                }
             } catch (StripeException e) {
                 // Handle Stripe API exceptions
                 JOptionPane.showMessageDialog(this, "Stripe API error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
