@@ -2,6 +2,7 @@ package gui;
 
 import Components.RButton;
 import Components.RoomOffer;
+import DataBase.User;
 import Stripe.StripeConfig;
 import Stripe.StripePaymentProcessor;
 import Stripe.PaymentConfirmationService;
@@ -42,7 +43,7 @@ public class AddReservation extends JPanel {
     private java.util.Date secondDateSelected = null;
     private JLabel priceLabel;
     private double finalPrice;
-
+    private User user;
     private final PaymentConfirmationService confirmationService = new PaymentConfirmationService();
     // Payment form elements
     private JTextField cardNumberField;
@@ -50,10 +51,10 @@ public class AddReservation extends JPanel {
     private JTextField cvcField;
     private JTextField cardholderNameField;
 
-    public AddReservation(BaseFrame baseFrame, RoomOffer offer, int index) {
+    public AddReservation(BaseFrame baseFrame, RoomOffer offer, User u) {
         setSize(1400, 600);
         setLayout(null);
-
+        user = u;
         JLabel title = new JLabel("Add Reservation");
         title.setBounds(0, 20, 600, 50);
         title.setFont(new Font("Segoe UI", Font.BOLD, 35));
