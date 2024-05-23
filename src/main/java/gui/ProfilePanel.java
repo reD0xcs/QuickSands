@@ -19,9 +19,9 @@ import java.util.Objects;
 public class ProfilePanel extends BasePanel {
     private final User user;
 
-    private void reservation(ActionEvent e, ArrayList<RoomOffer> roomOffers, int index){
+    private void reservation(ActionEvent e, ArrayList<RoomOffer> roomOffers, int index, User user){
         BaseFrame addReservationFrame = new BaseFrame(1400, 600);
-        AddReservation addReservation = new AddReservation(addReservationFrame, roomOffers.get(index), index);
+        AddReservation addReservation = new AddReservation(addReservationFrame, roomOffers.get(index), user);
         addReservationFrame.add(addReservation);
         addReservationFrame.setLocationRelativeTo(null);
         addReservationFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -156,7 +156,7 @@ public class ProfilePanel extends BasePanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //System.out.println("Clicked on Book Now for offer #" + (index + 1));
-                reservation(e, roomOffers, index);
+                reservation(e, roomOffers, index, user);
             }
         });
 
