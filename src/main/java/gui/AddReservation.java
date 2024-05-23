@@ -1,8 +1,15 @@
 package gui;
 
-import Components.HotelOffer;
 import Components.RButton;
 import Components.RoomOffer;
+import Stripe.StripePaymentProcessor;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Customer;
+import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentMethodCreateParams;
+import com.stripe.param.PaymentMethodCreateParams.CardDetails;
+import com.stripe.model.PaymentMethod;
+import com.stripe.param.checkout.SessionCreateParams;
 import org.jdatepicker.impl.DateComponentFormatter;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
@@ -14,6 +21,7 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -27,6 +35,13 @@ public class AddReservation extends JPanel {
     private java.util.Date firstDateSelected = null;
     private java.util.Date secondDateSelected = null;
     private JLabel priceLabel;
+    private double finalPrice;
+
+    // Payment form elements
+    private JTextField cardNumberField;
+    private JTextField expirationDateField;
+    private JTextField cvcField;
+    private JTextField cardholderNameField;
 
     public AddReservation(BaseFrame baseFrame, RoomOffer offer, int index) {
         setSize(1400, 600);
@@ -103,7 +118,7 @@ public class AddReservation extends JPanel {
 
         // Price label
         priceLabel = new JLabel("Price: ");
-        priceLabel.setBounds(30, 160, 200, 30);
+        priceLabel.setBounds(30, 160, 350, 30);
         priceLabel.setFont(new Font("Segoe UI", Font.PLAIN, 20));
         add(priceLabel);
 
@@ -138,27 +153,148 @@ public class AddReservation extends JPanel {
         navPanel.setBounds(750, 480, 300, getHeight() / 6);
         add(navPanel);
 
-        // Add button to close window and reset image controller
-        RButton addButton = new RButton("Book", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
-        addButton.setCursor(cursor);
-        addButton.setFont(new Font("Dialog", Font.PLAIN, 23));
-        addButton.setBounds(30, 420, 220, 70);
-        addButton.setForeground(Color.decode("#D9D9D9"));
-        addButton.addActionListener(e -> {
-            imageController.setModel(new DefaultImageModel(new ArrayList<>()));
-            baseFrame.dispose(); // Close the current window
-            // Reset image controller for reuse
-            // Need to make this functional
+        // Add card payment form elements
+        JLabel cardNumberLabel = new JLabel("Card Number:");
+        cardNumberLabel.setBounds(30, 200, 200, 30);
+        cardNumberLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        add(cardNumberLabel);
+
+        cardNumberField = new JTextField();
+        cardNumberField.setBounds(150, 200, 200, 30);
+        cardNumberField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        add(cardNumberField);
+
+        JLabel expirationDateLabel = new JLabel("Expiration Date (MM/YY):");
+        expirationDateLabel.setBounds(30, 240, 200, 30);
+        expirationDateLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        add(expirationDateLabel);
+
+        expirationDateField = new JTextField();
+        expirationDateField.setBounds(230, 240, 120, 30);
+        expirationDateField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        add(expirationDateField);
+
+        JLabel cvcLabel = new JLabel("CVC:");
+        cvcLabel.setBounds(30, 280, 200, 30);
+        cvcLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        add(cvcLabel);
+
+        cvcField = new JTextField();
+        cvcField.setBounds(150, 280, 100, 30);
+        cvcField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        add(cvcField);
+
+        JLabel cardholderNameLabel = new JLabel("Cardholder Name:");
+        cardholderNameLabel.setBounds(30, 320, 200, 30);
+        cardholderNameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        add(cardholderNameLabel);
+
+        cardholderNameField = new JTextField();
+        cardholderNameField.setBounds(180, 320, 200, 30);
+        cardholderNameField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        add(cardholderNameField);
+
+
+        // Add submit button for payment
+        RButton submitButton = new RButton("Submit Payment", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        submitButton.setCursor(cursor);
+        submitButton.setFont(new Font("Dialog", Font.PLAIN, 23));
+        submitButton.setBounds(150, 420, 220, 70);
+        submitButton.setForeground(Color.decode("#D9D9D9"));
+        submitButton.addActionListener(e -> {
+            processPayment();
         });
-        add(addButton);
+        add(submitButton);
     }
 
     private void updatePriceLabel(RoomOffer offer) {
         if (firstDateSelected != null && secondDateSelected != null) {
             long diffInMillies = Math.abs(secondDateSelected.getTime() - firstDateSelected.getTime());
             long diffInDays = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-            double price = diffInDays * offer.getRoomPricePerNight(); // Assuming getPricePerNight() returns the price per night
-            priceLabel.setText(String.format("Price: $%.2f", price));
+
+            // Calculate the number of 2-night pairs
+            long twoNightPairs = diffInDays / 2;
+
+            // Calculate the total price without discount
+            double originalPrice = diffInDays * offer.getRoomPricePerNight();
+
+            // Apply the progressive discount
+            double discount = twoNightPairs * 0.04 * originalPrice;
+
+            // Calculate the final price after discount
+            finalPrice = originalPrice - discount;
+
+            // Calculate the reduction amount
+            double reduction = originalPrice - finalPrice;
+
+            // Update the price label with original price (strikethrough), final price, and reduction amount
+            if (discount > 0) {
+                priceLabel.setText(String.format(
+                        "<html>Price: <span style='text-decoration: line-through; color: black;'>$%.2f</span> " +
+                                "<span style='color: red;'>$%.2f</span> " +
+                                "<span style='color: red;'>(-$%.2f)</span></html>",
+                        originalPrice, finalPrice, reduction
+                ));
+            } else {
+                priceLabel.setText(String.format(
+                        "<html>Price: <span style='color: black;'>$%.2f</span></html>",
+                        originalPrice
+                ));
+            }
         }
     }
+
+
+    private void processPayment() {
+        String cardNumber = cardNumberField.getText();
+        String expirationDate = expirationDateField.getText();
+        String cvc = cvcField.getText();
+        String cardholderName = cardholderNameField.getText();
+
+        // Simulate payment processing
+        if (cardNumber.isEmpty() || expirationDate.isEmpty() || cvc.isEmpty() || cardholderName.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all payment details.", "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            try {
+                // Step 1: Process payment and retrieve PaymentIntent
+                StripePaymentProcessor processor = new StripePaymentProcessor();
+                PaymentIntent paymentIntent = processor.createPaymentIntent(finalPrice);
+
+                // Step 2: Handle the PaymentIntent status and create Customer and Payment Method if payment is successful
+                if ("requires_payment_method".equals(paymentIntent.getStatus())) {
+                    // Create PaymentMethod
+                    PaymentMethodCreateParams paymentMethodParams = PaymentMethodCreateParams.builder()
+                            .setType(PaymentMethodCreateParams.Type.CARD)
+                            .setCard(CardDetails.builder().setNumber(cardNumber)
+                            .setExpMonth(Long.parseLong(expirationDate.substring(0, 2)))
+                            .setExpYear(Long.parseLong("20" + expirationDate.substring(3)))  // Assuming YY format
+                            .setCvc(cvc)
+                            .build())
+                            .build();
+
+                    PaymentMethod paymentMethod = PaymentMethod.create(paymentMethodParams);
+
+                    // Handle success scenario
+                    JOptionPane.showMessageDialog(this, "Payment successful! Thank you for your reservation.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    // Handle other statuses if needed
+                    JOptionPane.showMessageDialog(this, "Payment failed. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (StripeException e) {
+                // Handle Stripe API exceptions
+                JOptionPane.showMessageDialog(this, "Stripe API error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            } catch (NumberFormatException e) {
+                // Handle number format exception for expiration date parsing
+                JOptionPane.showMessageDialog(this, "Invalid expiration date format.", "Error", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            } catch (Exception e) {
+                // Handle other exceptions
+                JOptionPane.showMessageDialog(this, "Unexpected error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        }
+    }
+
 }
+
