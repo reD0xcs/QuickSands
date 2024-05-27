@@ -84,6 +84,10 @@ public class LoginPanel extends BasePanel {
                     baseFrame.changePanel(new AdminPanel(baseFrame, user));
                 }
             }
+            else{
+                JOptionPane.showMessageDialog(this, "There is no account that matches the email and password you entered.", "Error", JOptionPane.ERROR_MESSAGE);
+
+            }
         });
         componentsPanel.add(loginButton);
 

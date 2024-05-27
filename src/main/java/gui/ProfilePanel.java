@@ -92,7 +92,7 @@ public class ProfilePanel extends BasePanel {
         gbc.insets = new Insets(10, 10, 10, 10);
 
         // Menu panel
-        JPanel menuPanel = createMenuPanel();
+        JPanel menuPanel = createMenuPanel(frame);
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 0.2;
@@ -172,12 +172,9 @@ public class ProfilePanel extends BasePanel {
 
         return panel;
     }
-    private JPanel createMenuPanel() {
+    private JPanel createMenuPanel(BaseFrame baseFrame) {
         JPanel menuPanel = new JPanel();
         menuPanel.setLayout(new GridBagLayout());
-        //menuPanel.setBackground(Color.decode("#333333")); // Dark background color
-
-        String[] buttonLabels = {"Home", "Profile", "Reservations", "Settings", "Logout"};
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = GridBagConstraints.RELATIVE;
@@ -185,30 +182,85 @@ public class ProfilePanel extends BasePanel {
         gbc.weightx = 1.0;
         gbc.insets = new Insets(5, 0, 5, 0); // Spacing between buttons
 
-        for (String label : buttonLabels) {
-            SQButton button = new SQButton(label, Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
-            button.setFont(new Font("Dialog", Font.PLAIN, 18)); // Larger font size
-            button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        SQButton homeButton = new SQButton("Home", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        homeButton.setFont(new Font("Dialog", Font.BOLD, 23));
+        homeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        homeButton.setForeground(Color.WHITE);
 
-            // Set button size to match the menu panel width
-            button.setPreferredSize(new Dimension(Integer.MAX_VALUE, 50));
-            button.setMinimumSize(new Dimension(450, 50));
-            button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        homeButton.setPreferredSize(new Dimension(Integer.MAX_VALUE, 50));
+        homeButton.setMinimumSize(new Dimension(450, 50));
+        homeButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
-            // Add hover effect
-            button.addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseEntered(java.awt.event.MouseEvent evt) {
-                    button.setBackground(Color.decode("#555555"));
-                }
+        homeButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                homeButton.setBackground(Color.decode("#555555"));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                homeButton.setBackground(Color.decode("#7A4641"));
+            }
+        });
+        menuPanel.add(homeButton, gbc);
 
-                public void mouseExited(java.awt.event.MouseEvent evt) {
-                    button.setBackground(Color.decode("#7A4641"));
-                }
-            });
+        SQButton reservationsButton  = new SQButton("Your Reservations", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        reservationsButton.setFont(new Font("Dialog", Font.BOLD, 23));
+        reservationsButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        reservationsButton.setForeground(Color.WHITE);
 
-            menuPanel.add(button, gbc);
-        }
+        reservationsButton.setPreferredSize(new Dimension(Integer.MAX_VALUE, 50));
+        reservationsButton.setMinimumSize(new Dimension(450, 50));
+        reservationsButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
+        reservationsButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                homeButton.setBackground(Color.decode("#555555"));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                homeButton.setBackground(Color.decode("#7A4641"));
+            }
+        });
+        menuPanel.add(reservationsButton, gbc);
+
+        SQButton settingsButton  = new SQButton("Settings", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        settingsButton.setFont(new Font("Dialog", Font.BOLD, 23));
+        settingsButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        settingsButton.setForeground(Color.WHITE);
+
+        settingsButton.setPreferredSize(new Dimension(Integer.MAX_VALUE, 50));
+        settingsButton.setMinimumSize(new Dimension(450, 50));
+        settingsButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+
+        settingsButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                homeButton.setBackground(Color.decode("#555555"));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                homeButton.setBackground(Color.decode("#7A4641"));
+            }
+        });
+        menuPanel.add(settingsButton, gbc);
+
+        SQButton logoutButton  = new SQButton("Log Out", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        logoutButton.setFont(new Font("Dialog", Font.BOLD, 23));
+        logoutButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        logoutButton.setForeground(Color.WHITE);
+
+        logoutButton.setPreferredSize(new Dimension(Integer.MAX_VALUE, 50));
+        logoutButton.setMinimumSize(new Dimension(450, 50));
+        logoutButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+
+        logoutButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                homeButton.setBackground(Color.decode("#555555"));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                homeButton.setBackground(Color.decode("#7A4641"));
+            }
+        });
+
+        logoutButton.addActionListener(e -> {
+            baseFrame.changePanel(new LoginPanel(baseFrame));
+        });
+        menuPanel.add(logoutButton, gbc);
         return menuPanel;
     }
 

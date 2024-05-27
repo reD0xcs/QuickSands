@@ -1,5 +1,6 @@
 package gui;
 
+import Components.QRCodeGenerator;
 import Components.RButton;
 import Components.RoomOffer;
 import DataBase.User;
@@ -25,7 +26,20 @@ import org.jdatepicker.impl.DateComponentFormatter;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -33,6 +47,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -85,24 +101,6 @@ public class AddReservation extends JPanel {
         JDatePickerImpl firstDatePicker = new JDatePickerImpl(firstDatePanel, new DateComponentFormatter());
         firstDatePicker.setBounds(30, 120, 200, 30);
         firstDatePicker.getJFormattedTextField().setFont(datePickerFont);
-        firstDatePicker.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                firstDateSelected = model1.getValue();
-                firstDateSelected = stripTime(firstDateSelected);
-                if (firstDateSelected != null && firstDateSelected.before(minDate)) {
-                    firstDateSelected = stripTime(firstDateSelected);
-                    firstDateSelected = minDate;
-                }
-                else if(firstDateSelected != null && secondDateSelected != null && secondDateSelected.equals(firstDateSelected)){
-                    Date default1 = new Date(firstDateSelected.getTime() - 24 * 60 * 60 * 1000);
-                    model1.setValue(default1);
-                    firstDateSelected = default1;
-                }
-                updatePriceLabel(offer);
-            }
-        });
-        add(firstDatePicker);
 
         // Second date picker
         UtilDateModel model2 = new UtilDateModel();
@@ -114,6 +112,33 @@ public class AddReservation extends JPanel {
         JDatePickerImpl secondDatePicker = new JDatePickerImpl(secondDatePanel, new DateComponentFormatter());
         secondDatePicker.setBounds(270, 120, 200, 30);
         secondDatePicker.getJFormattedTextField().setFont(datePickerFont);
+
+
+        firstDatePicker.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                firstDateSelected = model1.getValue();
+                firstDateSelected = stripTime(firstDateSelected);
+                if (firstDateSelected != null && firstDateSelected.before(minDate)) {
+                    model1.setValue(minDate);
+                    firstDateSelected = minDate;
+                }
+                else if(firstDateSelected != null && secondDateSelected != null && secondDateSelected.equals(firstDateSelected)){
+                    Date default1 = new Date(firstDateSelected.getTime() - 24 * 60 * 60 * 1000);
+                    model1.setValue(default1);
+                    firstDateSelected = default1;
+                }
+                else if(firstDateSelected != null && secondDateSelected != null && firstDateSelected.after(secondDateSelected)){
+                    Date default1 = new Date(firstDateSelected.getTime() + 24 * 60 * 60 * 1000);
+                    model2.setValue(default1);
+                    secondDateSelected = default1;
+                }
+                updatePriceLabel(offer);
+            }
+        });
+        add(firstDatePicker);
+
+        // Second date picker
         secondDatePicker.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -310,18 +335,37 @@ public class AddReservation extends JPanel {
         String cardholderName = cardholderNameField.getText();
 
         // Simulate payment processing
-        if (cardNumber.isEmpty() || expirationDate.isEmpty() || cvc.isEmpty() || cardholderName.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in all payment details.", "Error", JOptionPane.ERROR_MESSAGE);
+        if (!validateCardNumber(cardNumber)) {
+            JOptionPane.showMessageDialog(this, "Invalid card number.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (!validateExpirationDate(expirationDate)) {
+            JOptionPane.showMessageDialog(this, "Invalid expiration date.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (!validateCVC(cvc)) {
+            JOptionPane.showMessageDialog(this, "Invalid CVC.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (!validateCardholderName(cardholderName)) {
+            JOptionPane.showMessageDialog(this, "The name should only contain letters.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         } else {
             try {
                 // Step 1: Process payment and retrieve PaymentIntent
                 StripePaymentProcessor processor = new StripePaymentProcessor();
                 PaymentIntent paymentIntent = processor.createPaymentIntent(finalPrice);
-//testing
+
                 PaymentIntent cofirmedPaymentIntent = confirmationService.confirmPaymentIntent(paymentIntent.getId(), "pm_card_visa");
-                int result = JOptionPane.showConfirmDialog(this, "Payment successful! Thank you for your reservation.", "Success", JOptionPane.OK_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                int result = JOptionPane.showConfirmDialog(this, "Payment successful! Thank you for your reservation.", "Success", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE);
                 createPdfReceipt(cardholderName, cardNumber, expirationDate, finalPrice);
-                String description = cofirmedPaymentIntent.getDescription();
+                String code = user.getFirst_name() + new Date().getTime();
+                BufferedImage QRCode = QRCodeGenerator.generateQRCodeImage(code, 300, 300);
+                File outputFile = new File(code + ".png");
+                ImageIO.write(QRCode, "PNG", outputFile);
                 if(result == JOptionPane.OK_OPTION){
                     baseFrame.dispose();
                 }
@@ -340,6 +384,48 @@ public class AddReservation extends JPanel {
             }
         }
     }
+    private boolean validateCardNumber(String cardNumber) {
+        if (cardNumber == null || cardNumber.length() < 13 || cardNumber.length() > 19) {
+            return false;
+        }
+
+        int sum = 0;
+        boolean alternate = false;
+
+        for (int i = cardNumber.length() - 2; i >= 0; i--) {
+            int n = cardNumber.charAt(i) - '0';
+            if(n < 0 || n > 9){
+                return false;
+            }
+            if (alternate) {
+                n *= 2;
+            }
+            alternate = !alternate;
+            sum += n > 9 ? n - 9 : n;
+        }
+        int checksum = cardNumber.charAt(cardNumber.length() - 1) - '0';
+        return (sum + checksum) % 10 == 0;
+    }
+
+    private boolean validateExpirationDate(String expirationDate) {
+        if (expirationDate == null || !expirationDate.matches("(0[1-9]|1[0-2])/[0-9]{2}")) {
+            return false;
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/yy");
+        sdf.setLenient(false);
+        try {
+            Date expDate = sdf.parse(expirationDate);
+            return expDate.after(new Date());
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
+    private boolean validateCVC(String cvc) {
+        return cvc != null && cvc.matches("\\d{3,4}");
+    }
+
     private Date stripTime(Date date) {
         if (date == null) {
             return null;
@@ -351,6 +437,15 @@ public class AddReservation extends JPanel {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
+    }
+    public boolean validateCardholderName(String cardholderName) {
+        if (cardholderName == null || cardholderName.isEmpty()) {
+            return false;
+        }
+
+        // Regular expression to match only letters and spaces
+        String regex = "^[a-zA-Z\\s]+$";
+        return cardholderName.matches(regex);
     }
 }
 
