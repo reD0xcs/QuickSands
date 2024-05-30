@@ -34,5 +34,12 @@ build/
 ### VS Code ###
 .vscode/
 
+### venv python ###
+key.json
+test.py
+bin/
+lib/
+lib64/
+
 ### Mac OS ###
 .DS_Store
