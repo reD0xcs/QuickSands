@@ -99,7 +99,7 @@ public class RegisterPanel extends BasePanel {
                     String role = "user";
                     User user = FireBaseService.registerUser(first_name, last_name, email, password, role);
                     if (user != null) {
-                        baseFrame.changePanel(new ProfilePanel(baseFrame, user));
+                        baseFrame.changePanel(new SelectDatePanel(baseFrame, user));
                     }
                     break;
                 case 1:

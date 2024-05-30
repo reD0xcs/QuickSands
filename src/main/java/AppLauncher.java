@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.stripe.Stripe;
+import gui.SelectDatePanel;
 
 public class AppLauncher {
     public static void main(String[] args) throws IOException, WriterException {
@@ -31,7 +32,7 @@ public class AppLauncher {
 
         SwingUtilities.invokeLater(() -> {
             BaseFrame baseFrame = new BaseFrame();
-            //baseFrame.changePanel(new ProfilePanel(baseFrame, new User())); // Testing on the Profile Panel
+            baseFrame.changePanel(new SelectDatePanel(baseFrame, new User())); // Testing on the Profile Panel
             baseFrame.setVisible(true);
         });
     }

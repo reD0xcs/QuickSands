@@ -89,7 +89,7 @@ public class LoginPanel extends BasePanel {
                     } catch (StripeException ex) {
                         throw new RuntimeException(ex);
                     }
-                    baseFrame.changePanel(new ProfilePanel(baseFrame, user));
+                    baseFrame.changePanel(new SelectDatePanel(baseFrame, user));
                 } else {
                     baseFrame.changePanel(new AdminPanel(baseFrame, user));
                 }

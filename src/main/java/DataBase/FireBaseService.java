@@ -338,4 +338,48 @@ public class FireBaseService {
 
         }
     }
+
+    public static ArrayList<RoomOffer> getAvailableRoomOffers(Date checkInDate, Date checkOutDate) {
+        ArrayList<RoomOffer> availableRoomOffers = new ArrayList<>();
+        try {
+            // Load all room offers
+            ArrayList<RoomOffer> allRoomOffers = loadAllOffers();
+
+            // Fetch reservations within the date range
+            CollectionReference reservationsRef = database.collection("reservations");
+            ApiFuture<QuerySnapshot> future = reservationsRef.get();
+            QuerySnapshot querySnapshot = future.get();
+
+            Set<Long> reservedRoomIndices = new HashSet<>();
+
+            // Filter reservations that overlap with the given date range
+            for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
+                Date reservationCheckInDate = document.getDate("checkInDate");
+                Date reservationCheckOutDate = document.getDate("checkOutDate");
+                Long roomIndex = document.getLong("roomIndex");
+
+                // Check if the reservation overlaps with the requested date range
+                if (datesOverlap(checkInDate, checkOutDate, reservationCheckInDate, reservationCheckOutDate)) {
+                    reservedRoomIndices.add(roomIndex);
+                }
+            }
+
+            // Filter room offers that do not have reservations in the given date interval
+            for (RoomOffer offer : allRoomOffers) {
+                if (!reservedRoomIndices.contains(offer.getRoomId())) {
+                    availableRoomOffers.add(offer);
+                }
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            // Handle exception appropriately based on your application's error handling strategy
+        }
+        return availableRoomOffers;
+    }
+
+    // Utility method to check if two date ranges overlap
+    private static boolean datesOverlap(Date start1, Date end1, Date start2, Date end2) {
+        return start1.before(end2) && end1.after(start2);
+    }
+
 }
