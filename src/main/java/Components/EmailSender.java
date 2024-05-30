@@ -20,7 +20,9 @@ import com.itextpdf.layout.element.Paragraph;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.util.Base64;
@@ -29,9 +31,14 @@ import java.util.Map;
 
 public class EmailSender {
     private static final String EMAIL = "colectivproiect@gmail.com"; // Replace with your verified email
-    private static final String SENDGRID_KEY = "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"; // Replace with your new SendGrid API key
+    private static String SENDGRID_KEY; // Replace with your new SendGrid API key
 
     public static void sendEmail(User u, BufferedImage QRCode, byte[] receipt) throws IOException, WriterException {
+        try(BufferedReader br = new BufferedReader(new FileReader("src/main/resources/sendgridkey.txt"))){
+            SENDGRID_KEY = br.readLine();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         Email from = new Email(EMAIL);
         Email to = new Email(u.getEmail());
         String subject = "Your BookNgo Reservation Receipt";
