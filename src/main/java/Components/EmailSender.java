@@ -31,7 +31,7 @@ import java.util.Map;
 
 public class EmailSender {
     private static final String EMAIL = "colectivproiect@gmail.com"; // Replace with your verified email
-    private static String SENDGRID_KEY; // Replace with your new SendGrid API key
+    private static String SENDGRID_KEY; // Replace with your new SendGrid API key test
 
     public static void sendEmail(User u, BufferedImage QRCode, byte[] receipt) throws IOException, WriterException {
         try(BufferedReader br = new BufferedReader(new FileReader("src/main/resources/sendgridkey.txt"))){
