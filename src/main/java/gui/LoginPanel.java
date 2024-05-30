@@ -4,6 +4,9 @@ import Components.RButton;
 import Components.TextPrompt;
 import DataBase.FireBaseService;
 import DataBase.User;
+import Stripe.StripeConfig;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Customer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -79,6 +82,13 @@ public class LoginPanel extends BasePanel {
             user = FireBaseService.verifyAccount(email, password);
             if (user != null) {
                 if (user.getRole().equals("user")) {
+
+                    try {
+                        Customer customer = StripeConfig.createStripeCustomer(user);
+                        FireBaseService.saveCustomerToFirebase(user.getEmail(), customer.getId());
+                    } catch (StripeException ex) {
+                        throw new RuntimeException(ex);
+                    }
                     baseFrame.changePanel(new ProfilePanel(baseFrame, user));
                 } else {
                     baseFrame.changePanel(new AdminPanel(baseFrame, user));

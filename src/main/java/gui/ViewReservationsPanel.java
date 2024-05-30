@@ -1,41 +1,23 @@
 package gui;
 
-import Components.HotelOffer;
-import Components.RButton;
-import Components.RoomOffer;
-import Components.SQButton;
+import Components.*;
 import DataBase.FireBaseService;
 import DataBase.User;
+import com.google.zxing.WriterException;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Objects;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
-public class ProfilePanel extends BasePanel {
+public class ViewReservationsPanel extends BasePanel{
     private final User user;
 
-    private void reservation(ActionEvent e, ArrayList<RoomOffer> roomOffers, int index, User user){
-        BaseFrame addReservationFrame = new BaseFrame(1400, 600);
-        AddReservation addReservation = new AddReservation(addReservationFrame, roomOffers.get(index), user);
-        addReservationFrame.add(addReservation);
-        addReservationFrame.setLocationRelativeTo(null);
-        addReservationFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        addReservationFrame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                addReservationFrame.dispose();
-            }
-        });
-        addReservationFrame.setVisible(true);
-
-    }
-
-    public ProfilePanel(BaseFrame baseFrame, User u) {
+    public ViewReservationsPanel(BaseFrame baseFrame, User u){
         user = u;
         setSize(baseFrame.getWidth(), baseFrame.getHeight());
         setLayout(null);
@@ -45,12 +27,19 @@ public class ProfilePanel extends BasePanel {
 
     @Override
     public void addComponents(BaseFrame baseFrame, JPanel componentsPanel) {
-        // Not used, but needs to be implemented due to abstract method in BasePanel
+
     }
 
     @Override
     public void addComponents(BaseFrame frame) {
+        ArrayList<Reservation> reservations = FireBaseService.loadReservations(user);
         ArrayList<RoomOffer> roomOffers = FireBaseService.loadAllOffers();
+        Collections.sort(roomOffers, new Comparator<RoomOffer>() {
+            @Override
+            public int compare(RoomOffer o1, RoomOffer o2) {
+                return Long.compare(o1.getRoomId(), o2.getRoomId());
+            }
+        });
         Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
         setLayout(new BorderLayout());
 
@@ -84,7 +73,6 @@ public class ProfilePanel extends BasePanel {
         travelAppLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(travelAppLabel, BorderLayout.NORTH);
 
-        // Container panel with GridBagLayout
         JPanel containerPanel = new JPanel();
         containerPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -102,14 +90,12 @@ public class ProfilePanel extends BasePanel {
         // Offers panel
         JPanel offersPanel = new JPanel();
         offersPanel.setLayout(new BoxLayout(offersPanel, BoxLayout.Y_AXIS));
-        for (int i = 0; i < roomOffers.size(); i++) {
-            JPanel offerPanel = createOfferPanel(roomOffers.get(i), i, roomOffers);
+        for (int i = 0; i < reservations.size(); i++) {
+            JPanel offerPanel = createOfferPanel(reservations.get(i), i, reservations, roomOffers);
             offerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
             offersPanel.add(offerPanel);
             offersPanel.add(Box.createVerticalStrut(10));
         }
-
-        // Add the offers panel to a JScrollPane
         JScrollPane offersScrollPane = new JScrollPane(offersPanel);
         offersScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
@@ -122,50 +108,80 @@ public class ProfilePanel extends BasePanel {
         add(containerPanel, BorderLayout.CENTER);
     }
 
-
-    private JPanel createOfferPanel(RoomOffer offer, int index, ArrayList<RoomOffer> roomOffers) {
+    private JPanel createOfferPanel(Reservation reservation, int index, ArrayList<Reservation> roomOffers, ArrayList<RoomOffer> offers) {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
         panel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
         panel.setPreferredSize(new Dimension(700, 300)); // Set a preferred size for the panel
 
-        JLabel roomTypeLabel = new JLabel(offer.getRoomType());
+        JLabel roomTypeLabel = new JLabel(offers.get(reservation.getRoomIndex() - 1).getRoomType());
         roomTypeLabel.setFont(new Font("Dialog", Font.BOLD, 20));
         roomTypeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JLabel roomPriceLabel = new JLabel("Price: $" + offer.getRoomPricePerNight());
+        JLabel roomPriceLabel = new JLabel("Price: $" + offers.get(reservation.getRoomIndex() - 1).getRoomPricePerNight());
         roomPriceLabel.setFont(new Font("Dialog", Font.PLAIN, 16));
         roomPriceLabel.setHorizontalAlignment(SwingConstants.LEFT);
 
         ImageIcon imageIcon = null;
-        if (!offer.getRoomImages().isEmpty()) {
-            Image image = offer.getRoomImages().get(0);
+        if (!offers.get(reservation.getRoomIndex() - 1).getRoomImages().isEmpty()) {
+            Image image = offers.get(reservation.getRoomIndex() - 1).getRoomImages().get(0);
             Image scaledImage = image.getScaledInstance(500, 500, Image.SCALE_SMOOTH);
             imageIcon = new ImageIcon(scaledImage);
         }
         JLabel imageLabel = new JLabel(imageIcon);
         imageLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 
-        RButton bookButton = new RButton("Book now", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
-        bookButton.setFont(new Font("Dialog", Font.PLAIN, 16));
-        bookButton.setForeground(Color.WHITE);
-        bookButton.setPreferredSize(new Dimension(100, 40));
+        RButton cancelButton = new RButton("Cancel", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        cancelButton.setFont(new Font("Dialog", Font.PLAIN, 16));
+        cancelButton.setForeground(Color.WHITE);
+        cancelButton.setPreferredSize(new Dimension(100, 40));
 
         // Add action listener to the book button to handle the action
-        bookButton.addActionListener(new ActionListener() {
+        cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //System.out.println("Clicked on Book Now for offer #" + (index + 1));
-                reservation(e, roomOffers, index, user);
+                try {
+                    FireBaseService.cancelReservation(reservation.getQRname());
+                } catch (ExecutionException ex) {
+                    throw new RuntimeException(ex);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
+
+        RButton resendButton = new RButton("Resend details", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        resendButton.setFont(new Font("Dialog", Font.PLAIN, 16));
+        resendButton.setForeground(Color.WHITE);
+        resendButton.setPreferredSize(new Dimension(100, 40));
+
+        // Add action listener to the book button to handle the action
+        resendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //System.out.println("Clicked on Book Now for offer #" + (index + 1));
+                try {
+                    BufferedImage QR = (BufferedImage) FireBaseService.loadQR(reservation.getQRname());
+                    byte[] PDF = FireBaseService.loadPDF(reservation.getReceiptName());
+                    EmailSender.sendEmail(user, QR, PDF);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                } catch (WriterException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+
 
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.add(roomTypeLabel);
         infoPanel.add(roomPriceLabel);
         infoPanel.add(Box.createVerticalStrut(20));
-        infoPanel.add(bookButton);
+        infoPanel.add(cancelButton);
+        infoPanel.add(Box.createVerticalStrut(20));
+        infoPanel.add(resendButton);
 
         panel.add(imageLabel, BorderLayout.EAST);
         panel.add(infoPanel, BorderLayout.WEST);
@@ -199,6 +215,9 @@ public class ProfilePanel extends BasePanel {
                 homeButton.setBackground(Color.decode("#7A4641"));
             }
         });
+        homeButton.addActionListener(e -> {
+            baseFrame.changePanel(new ProfilePanel(baseFrame, user));
+        });
         menuPanel.add(homeButton, gbc);
 
         SQButton reservationsButton  = new SQButton("Your Reservations", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
@@ -217,9 +236,6 @@ public class ProfilePanel extends BasePanel {
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 homeButton.setBackground(Color.decode("#7A4641"));
             }
-        });
-        reservationsButton.addActionListener(e -> {
-            baseFrame.changePanel(new ViewReservationsPanel(baseFrame, user));
         });
         menuPanel.add(reservationsButton, gbc);
 
@@ -266,5 +282,4 @@ public class ProfilePanel extends BasePanel {
         menuPanel.add(logoutButton, gbc);
         return menuPanel;
     }
-
 }

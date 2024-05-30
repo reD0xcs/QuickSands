@@ -4,20 +4,20 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class RoomOffer {
-    private String roomId;
+    private Long roomId;
     private String roomDescription;
     private Double roomPricePerNight;
     private roomTypes roomType;
     private ArrayList<Image> roomImages;
 
-    public RoomOffer(String id, String description, Double pricePerNight, String room, ArrayList<Image> images) {
+    public RoomOffer(Long id, String description, Double pricePerNight, String room, ArrayList<Image> images) {
         roomId = id;
         roomDescription = description;
         roomPricePerNight = pricePerNight;
         roomType = roomTypes.valueOf(room);
         roomImages = images;
     }
-    public String getRoomId() {
+    public Long getRoomId() {
         return roomId;
     }
 

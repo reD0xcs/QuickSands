@@ -9,14 +9,20 @@ public class Reservation {
     private String QRname;
     private String ReceiptName;
     private Double price;
+    private Integer roomIndex;
 
-    public Reservation(String e, Date in, Date out, String QR, String r, Double p){
+    public Reservation(String e, Date in, Date out, String QR, String r, Double p, Long index){
         email = e;
         checkInDate = in;
         checkOutDate = out;
         QRname = QR;
         ReceiptName = r;
         price = p;
+        roomIndex = index.intValue();
+    }
+
+    public Integer getRoomIndex(){
+        return roomIndex;
     }
 
     public String getEmail(){

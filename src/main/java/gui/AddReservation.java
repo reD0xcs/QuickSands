@@ -1,17 +1,21 @@
 package gui;
 
+import Components.EmailSender;
 import Components.QRCodeGenerator;
 import Components.RButton;
 import Components.RoomOffer;
+import DataBase.FireBaseService;
 import DataBase.User;
 import Stripe.StripeConfig;
 import Stripe.StripePaymentProcessor;
 import Stripe.PaymentConfirmationService;
+import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
@@ -34,6 +38,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -66,11 +71,13 @@ public class AddReservation extends JPanel {
     private JTextField expirationDateField;
     private JTextField cvcField;
     private JTextField cardholderNameField;
+    private RoomOffer offer;
 
-    public AddReservation(BaseFrame baseFrame, RoomOffer offer, User u) {
+    public AddReservation(BaseFrame baseFrame, RoomOffer o, User u) {
         setSize(1400, 600);
         setLayout(null);
         user = u;
+        offer = o;
         JLabel title = new JLabel("Add Reservation");
         title.setBounds(0, 20, 600, 50);
         title.setFont(new Font("Segoe UI", Font.BOLD, 35));
@@ -293,39 +300,50 @@ public class AddReservation extends JPanel {
             }
         }
     }
-    private void createPdfReceipt(String cardholderName, String cardNumber, String expirationDate, double amount) {
+    private byte[] createPdfReceipt(String cardholderName, String cardNumber, String expirationDate, double amount) {
         String dest = "receipt.pdf";
         try {
-            PdfWriter writer = new PdfWriter(dest);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PdfWriter writer = new PdfWriter(baos);
             PdfDocument pdfDoc = new PdfDocument(writer);
             Document document = new Document(pdfDoc);
 
             // Add receipt title
-            document.add(new Paragraph("Payment Receipt").setBold().setFontSize(20));
+            Paragraph title = new Paragraph("Payment Receipt")
+                    .setBold()
+                    .setFontSize(20)
+                    .setTextAlignment(TextAlignment.CENTER);
+            document.add(title);
             document.add(new Paragraph("\n"));
 
-            // Add payment details
-            Table table = new Table(UnitValue.createPercentArray(new float[]{1, 2}));
-            table.addCell("Cardholder Name:");
-            table.addCell(cardholderName);
-            table.addCell("Card Number:");
-            table.addCell("**** **** **** " + cardNumber.substring(cardNumber.length() - 4));
-            table.addCell("Expiration Date:");
-            table.addCell(expirationDate);
-            table.addCell("Amount:");
-            table.addCell("$" + amount);
+            // Define table columns and styling
+            Table table = new Table(UnitValue.createPercentArray(new float[]{1, 2}))
+                    .useAllAvailableWidth();
+
+            // Add cardholder name
+            table.addCell(new Paragraph("Cardholder Name:").setBold().setBackgroundColor(new DeviceRgb(240, 240, 240)));
+            table.addCell(new Paragraph(cardholderName));
+
+            // Add card number
+            table.addCell(new Paragraph("Card Number:").setBold().setBackgroundColor(new DeviceRgb(240, 240, 240)));
+            table.addCell(new Paragraph("**** **** **** " + cardNumber.substring(cardNumber.length() - 4)));
+
+            // Add expiration date
+            table.addCell(new Paragraph("Expiration Date:").setBold().setBackgroundColor(new DeviceRgb(240, 240, 240)));
+            table.addCell(new Paragraph(expirationDate));
+
+            // Add amount
+            table.addCell(new Paragraph("Amount:").setBold().setBackgroundColor(new DeviceRgb(240, 240, 240)));
+            table.addCell(new Paragraph("$" + String.format("%.2f", amount)));
 
             document.add(table);
             document.close();
-
-            JOptionPane.showMessageDialog(this, "Receipt generated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-        } catch (FileNotFoundException e) {
-            JOptionPane.showMessageDialog(this, "File not found error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+            return baos.toByteArray();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Unexpected error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Unexpected error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
+        return null;
     }
 
     private void processPayment(BaseFrame baseFrame) {
@@ -334,7 +352,6 @@ public class AddReservation extends JPanel {
         String cvc = cvcField.getText();
         String cardholderName = cardholderNameField.getText();
 
-        // Simulate payment processing
         if (!validateCardNumber(cardNumber)) {
             JOptionPane.showMessageDialog(this, "Invalid card number.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -355,17 +372,27 @@ public class AddReservation extends JPanel {
             return;
         } else {
             try {
-                // Step 1: Process payment and retrieve PaymentIntent
-                StripePaymentProcessor processor = new StripePaymentProcessor();
-                PaymentIntent paymentIntent = processor.createPaymentIntent(finalPrice);
-
-                PaymentIntent cofirmedPaymentIntent = confirmationService.confirmPaymentIntent(paymentIntent.getId(), "pm_card_visa");
+                PaymentIntent paymentIntent = StripeConfig.createPaymentIntent(finalPrice);
+                PaymentIntent confirmation = StripeConfig.confirmPaymentIntent(paymentIntent.getId(), "pm_card_visa");
+                FireBaseService.savePaymentConfirmation(user.getEmail(), paymentIntent.getId(), confirmation.getId());
                 int result = JOptionPane.showConfirmDialog(this, "Payment successful! Thank you for your reservation.", "Success", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE);
                 createPdfReceipt(cardholderName, cardNumber, expirationDate, finalPrice);
-                String code = user.getFirst_name() + new Date().getTime();
+                String code = offer.getRoomId() + "_" + user.getFirst_name() + new Date().getTime();
+                String codeName = code + ".png";
                 BufferedImage QRCode = QRCodeGenerator.generateQRCodeImage(code, 300, 300);
-                File outputFile = new File(code + ".png");
-                ImageIO.write(QRCode, "PNG", outputFile);
+                String receiptName = code + ".pdf";
+                byte[] receipt = createPdfReceipt(cardholderName, cardNumber, expirationDate, finalPrice);
+
+                FireBaseService.uploadQR(codeName, QRCode);
+                FireBaseService.uploadPDF(receiptName, receipt);
+                FireBaseService.registerReservation(user.getEmail(), firstDateSelected, secondDateSelected, finalPrice, codeName, receiptName, offer.getRoomId());
+                try {
+                    EmailSender.sendEmail(user, QRCode, receipt);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                } catch (WriterException ex) {
+                    throw new RuntimeException(ex);
+                }
                 if(result == JOptionPane.OK_OPTION){
                     baseFrame.dispose();
                 }

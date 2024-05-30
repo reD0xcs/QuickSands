@@ -1,15 +1,22 @@
+import Components.QRCodeGenerator;
 import DataBase.FireBaseService;
 import Stripe.StripeConfig;
 import DataBase.User;
+import com.google.zxing.WriterException;
 import gui.BaseFrame;
 import gui.ProfilePanel;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 
 import com.stripe.Stripe;
 
 public class AppLauncher {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, WriterException {
+
 
         FireBaseService.getInstance();
 
