@@ -6,11 +6,6 @@
         <language description="Romanian" lang="RO" />
         <language description="Russian" lang="RU" />
     </languageList>
-    <key value="sms">
-        <val lang="ENG">Student Management System</val>
-        <val lang="RO">Sistem de management al elevilor</val>
-        <val lang="RU">Система управления студентами</val>
-    </key>
     <key value="selectLanguage">
         <val lang="ENG">Select a language</val>
         <val lang="RO">Alege o limbă</val>
