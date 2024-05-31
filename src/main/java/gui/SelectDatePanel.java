@@ -1,56 +1,41 @@
 package gui;
 
-import Components.HotelOffer;
 import Components.RButton;
 import Components.RoomOffer;
 import Components.SQButton;
 import DataBase.FireBaseService;
 import DataBase.User;
+import com.fasterxml.jackson.databind.ser.Serializers;
+import org.jdatepicker.impl.DateComponentFormatter;
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.*;
 
-public class ProfilePanel extends BasePanel {
+public class SelectDatePanel extends BasePanel{
     private final User user;
-    private ArrayList<RoomOffer> array;
-    private void reservation(ActionEvent e, ArrayList<RoomOffer> roomOffers, int index, User user){
-        BaseFrame addReservationFrame = new BaseFrame(1400, 600);
-        AddReservation addReservation = new AddReservation(addReservationFrame, roomOffers.get(index), user);
-        addReservationFrame.add(addReservation);
-        addReservationFrame.setLocationRelativeTo(null);
-        addReservationFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        addReservationFrame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                addReservationFrame.dispose();
-            }
-        });
-        addReservationFrame.setVisible(true);
+    private java.util.Date firstDateSelected = null;
+    private java.util.Date secondDateSelected = null;
 
-    }
 
-    public ProfilePanel(BaseFrame baseFrame, User u, ArrayList<RoomOffer> a) {
+    public SelectDatePanel(BaseFrame baseFrame, User u){
         user = u;
-        array = a;
         setSize(baseFrame.getWidth(), baseFrame.getHeight());
         setLayout(null);
         setBackground(Color.decode("#F2F2F2"));
         addComponents(baseFrame);
     }
-
     @Override
     public void addComponents(BaseFrame baseFrame, JPanel componentsPanel) {
-        // Not used, but needs to be implemented due to abstract method in BasePanel
     }
 
     @Override
-    public void addComponents(BaseFrame frame) {
+    public void addComponents(BaseFrame baseFrame) {
         Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
         setLayout(new BorderLayout());
 
@@ -66,7 +51,7 @@ public class ProfilePanel extends BasePanel {
         profileButton.setContentAreaFilled(false);
         profileButton.setBorderPainted(false);
         profileButton.addActionListener(e -> {
-            frame.changePanel(new ProfilePanel(frame, user, array));
+            //baseFrame.changePanel(new ProfilePanel(baseFrame, user));
         });
         add(profileButton, BorderLayout.NORTH);
 
@@ -84,7 +69,6 @@ public class ProfilePanel extends BasePanel {
         travelAppLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(travelAppLabel, BorderLayout.NORTH);
 
-        // Container panel with GridBagLayout
         JPanel containerPanel = new JPanel();
         containerPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -92,86 +76,137 @@ public class ProfilePanel extends BasePanel {
         gbc.insets = new Insets(10, 10, 10, 10);
 
         // Menu panel
-        JPanel menuPanel = createMenuPanel(frame);
+        JPanel menuPanel = createMenuPanel(baseFrame);
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 0.2;
         gbc.weighty = 1;
         containerPanel.add(menuPanel, gbc);
 
-        // Offers panel
-        JPanel offersPanel = new JPanel();
-        offersPanel.setLayout(new BoxLayout(offersPanel, BoxLayout.Y_AXIS));
-        for (int i = 0; i < array.size(); i++) {
-            JPanel offerPanel = createOfferPanel(array.get(i), i, array);
-            offerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            offersPanel.add(offerPanel);
-            offersPanel.add(Box.createVerticalStrut(10));
-        }
+        // Date panel
+        JPanel datePanel = new JPanel();
+        datePanel.setLayout(null);
 
-        // Add the offers panel to a JScrollPane
-        JScrollPane offersScrollPane = new JScrollPane(offersPanel);
-        offersScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        Date today = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(today);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Date minDate = calendar.getTime();
+
+        Font datePickerFont = new Font("Segoe UI", Font.PLAIN, 16);
+
+        // Create first date picker
+        UtilDateModel model1 = new UtilDateModel();
+        Properties p1 = new Properties();
+        p1.put("text.today", "Today");
+        p1.put("text.month", "Month");
+        p1.put("text.year", "Year");
+        JDatePanelImpl firstDatePanel = new JDatePanelImpl(model1, p1);
+        JDatePickerImpl firstDatePicker = new JDatePickerImpl(firstDatePanel, new DateComponentFormatter());
+        firstDatePicker.setBounds(230, 120, 200, 30);
+        firstDatePicker.getJFormattedTextField().setFont(datePickerFont);
+
+
+        // Create second date picker
+        UtilDateModel model2 = new UtilDateModel();
+        Properties p2 = new Properties();
+        p2.put("text.today", "Today");
+        p2.put("text.month", "Month");
+        p2.put("text.year", "Year");
+        JDatePanelImpl secondDatePanel = new JDatePanelImpl(model2, p2);
+        JDatePickerImpl secondDatePicker = new JDatePickerImpl(secondDatePanel, new DateComponentFormatter());
+        secondDatePicker.setBounds(500, 120, 200, 30);
+        secondDatePicker.getJFormattedTextField().setFont(datePickerFont);
+
+        firstDatePicker.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                firstDateSelected = model1.getValue();
+                firstDateSelected = stripTime(firstDateSelected);
+                if (firstDateSelected != null && firstDateSelected.before(minDate)) {
+                    model1.setValue(minDate);
+                    firstDateSelected = minDate;
+                }
+                else if(firstDateSelected != null && secondDateSelected != null && secondDateSelected.equals(firstDateSelected)){
+                    Date default1 = new Date(firstDateSelected.getTime() - 24 * 60 * 60 * 1000);
+                    model1.setValue(default1);
+                    firstDateSelected = default1;
+                }
+                else if(firstDateSelected != null && secondDateSelected != null && firstDateSelected.after(secondDateSelected)){
+                    Date default1 = new Date(firstDateSelected.getTime() + 24 * 60 * 60 * 1000);
+                    model2.setValue(default1);
+                    secondDateSelected = default1;
+                }
+            }
+        });
+        datePanel.add(firstDatePicker);
+
+        secondDatePicker.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(firstDateSelected != null){
+                    secondDateSelected = model2.getValue();
+                    secondDateSelected = stripTime(secondDateSelected);
+                    if(secondDateSelected != null && (secondDateSelected.before(minDate))){
+                        Date default2 = new Date(firstDateSelected.getTime() + 24 * 60 * 60 * 1000);
+                        model2.setValue(default2);
+                        secondDateSelected = default2;
+                    }
+                    else if(secondDateSelected != null && secondDateSelected.before(firstDateSelected)){
+                        Date default2 = new Date(firstDateSelected.getTime() + 24 * 60 * 60 * 1000);
+                        model2.setValue(default2);
+                        secondDateSelected = default2;
+                    }
+                    else if(secondDateSelected != null && secondDateSelected.equals(firstDateSelected)){
+                        Date default2 = new Date(firstDateSelected.getTime() +  24 * 60 * 60 * 1000);
+                        model2.setValue(default2);
+                        secondDateSelected = default2;
+                    }
+                }
+            }
+        });
+        datePanel.add(secondDatePicker);
+
+        // Create search button
+        RButton searchButton = new RButton("Search", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        searchButton.setFont(new Font("Dialog", Font.BOLD, 23));
+        searchButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        searchButton.setForeground(Color.WHITE);
+        searchButton.setBounds(360, 300, 210, 45);
+        searchButton.addActionListener(e -> {
+            firstDateSelected = (java.util.Date) firstDatePicker.getModel().getValue();
+            secondDateSelected = (java.util.Date) secondDatePicker.getModel().getValue();
+            ArrayList<RoomOffer> rooms = FireBaseService.getAvailableRoomOffers(firstDateSelected, secondDateSelected);
+            baseFrame.changePanel(new ProfilePanel(baseFrame, user, rooms));
+        });
+
+        datePanel.add(searchButton);
 
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.weightx = 0.8;
         gbc.weighty = 1;
-        containerPanel.add(offersScrollPane, gbc);
+        containerPanel.add(datePanel, gbc);
 
         add(containerPanel, BorderLayout.CENTER);
     }
 
-
-    private JPanel createOfferPanel(RoomOffer offer, int index, ArrayList<RoomOffer> roomOffers) {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        panel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-        panel.setPreferredSize(new Dimension(700, 300)); // Set a preferred size for the panel
-
-        JLabel roomTypeLabel = new JLabel(offer.getRoomType());
-        roomTypeLabel.setFont(new Font("Dialog", Font.BOLD, 20));
-        roomTypeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-        JLabel roomPriceLabel = new JLabel("Price: $" + offer.getRoomPricePerNight());
-        roomPriceLabel.setFont(new Font("Dialog", Font.PLAIN, 16));
-        roomPriceLabel.setHorizontalAlignment(SwingConstants.LEFT);
-
-        ImageIcon imageIcon = null;
-        if (!offer.getRoomImages().isEmpty()) {
-            Image image = offer.getRoomImages().get(0);
-            Image scaledImage = image.getScaledInstance(500, 500, Image.SCALE_SMOOTH);
-            imageIcon = new ImageIcon(scaledImage);
+    private Date stripTime(Date date) {
+        if (date == null) {
+            return null;
         }
-        JLabel imageLabel = new JLabel(imageIcon);
-        imageLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-
-        RButton bookButton = new RButton("Book now", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
-        bookButton.setFont(new Font("Dialog", Font.PLAIN, 16));
-        bookButton.setForeground(Color.WHITE);
-        bookButton.setPreferredSize(new Dimension(100, 40));
-
-        // Add action listener to the book button to handle the action
-        bookButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //System.out.println("Clicked on Book Now for offer #" + (index + 1));
-                reservation(e, roomOffers, index, user);
-            }
-        });
-
-        JPanel infoPanel = new JPanel();
-        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        infoPanel.add(roomTypeLabel);
-        infoPanel.add(roomPriceLabel);
-        infoPanel.add(Box.createVerticalStrut(20));
-        infoPanel.add(bookButton);
-
-        panel.add(imageLabel, BorderLayout.EAST);
-        panel.add(infoPanel, BorderLayout.WEST);
-
-        return panel;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
     }
+
     private JPanel createMenuPanel(BaseFrame baseFrame) {
         JPanel menuPanel = new JPanel();
         menuPanel.setLayout(new GridBagLayout());
@@ -266,5 +301,4 @@ public class ProfilePanel extends BasePanel {
         menuPanel.add(logoutButton, gbc);
         return menuPanel;
     }
-
 }

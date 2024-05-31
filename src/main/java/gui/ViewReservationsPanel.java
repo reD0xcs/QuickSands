@@ -55,7 +55,7 @@ public class ViewReservationsPanel extends BasePanel{
         profileButton.setContentAreaFilled(false);
         profileButton.setBorderPainted(false);
         profileButton.addActionListener(e -> {
-            frame.changePanel(new ProfilePanel(frame, user));
+            //frame.changePanel(new ProfilePanel(frame, user));
         });
         add(profileButton, BorderLayout.NORTH);
 
@@ -216,7 +216,7 @@ public class ViewReservationsPanel extends BasePanel{
             }
         });
         homeButton.addActionListener(e -> {
-            baseFrame.changePanel(new ProfilePanel(baseFrame, user));
+            //baseFrame.changePanel(new ProfilePanel(baseFrame, user));
         });
         menuPanel.add(homeButton, gbc);
 
