@@ -43,9 +43,9 @@ public class EmailSender {
         Email to = new Email(u.getEmail());
         String subject = "Your BookNgo Reservation Receipt";
         String bodyContent = "Dear " + u.getFirst_name() + ",\n\n"
-                + "Thank you for choosing our hotel. Please find attached the receipt for your recent payment and a QR code for your reservation.\n\n"
+                + "Thank you for choosing our hotel. Please find the receipt for your recent payment and a QR code for your reservation.\n\n"
                 + "Best regards,\n"
-                + "BookNGo";
+                + "BookNGo!";
         // Create the content and attachments
         Content content = new Content("text/plain", bodyContent);
         Mail mail = new Mail(from, subject, to, content);
