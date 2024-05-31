@@ -78,7 +78,7 @@ public class AddReservation extends JPanel {
         setLayout(null);
         user = u;
         offer = o;
-        JLabel title = new JLabel("Add Reservation");
+        JLabel title = new JLabel(Translator.getValue("addreservation"));
         title.setBounds(0, 20, 600, 50);
         title.setFont(new Font("Segoe UI", Font.BOLD, 35));
         title.setHorizontalAlignment(SwingConstants.CENTER);
@@ -174,7 +174,7 @@ public class AddReservation extends JPanel {
         add(secondDatePicker);
 
         // Price label
-        priceLabel = new JLabel("Price: ");
+        priceLabel = new JLabel(Translator.getValue("price"));
         priceLabel.setBounds(30, 160, 350, 30);
         priceLabel.setFont(new Font("Segoe UI", Font.PLAIN, 20));
         add(priceLabel);
@@ -241,7 +241,7 @@ public class AddReservation extends JPanel {
         cvcField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         add(cvcField);
 
-        JLabel cardholderNameLabel = new JLabel("Cardholder Name:");
+        JLabel cardholderNameLabel = new JLabel(Translator.getValue("cardholdername"));
         cardholderNameLabel.setBounds(30, 320, 200, 30);
         cardholderNameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         add(cardholderNameLabel);
@@ -253,7 +253,7 @@ public class AddReservation extends JPanel {
 
 
         // Add submit button for payment
-        RButton submitButton = new RButton("Submit Payment", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        RButton submitButton = new RButton(Translator.getValue("submitpayment"), Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         submitButton.setCursor(cursor);
         submitButton.setFont(new Font("Dialog", Font.PLAIN, 23));
         submitButton.setBounds(150, 420, 220, 70);

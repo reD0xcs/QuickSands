@@ -32,7 +32,7 @@ public class AppLauncher {
 
         SwingUtilities.invokeLater(() -> {
             BaseFrame baseFrame = new BaseFrame();
-            baseFrame.changePanel(new SelectDatePanel(baseFrame, new User())); // Testing on the Profile Panel
+//            baseFrame.changePanel(new SelectDatePanel(baseFrame, new User())); // Testing on the Profile Panel
             baseFrame.setVisible(true);
         });
     }

@@ -52,7 +52,7 @@ public class LoginPanel extends BasePanel {
 
         // Email
         JTextField emailField = new JTextField();
-        TextPrompt emailPrompt = new TextPrompt("Email:", emailField);
+        TextPrompt emailPrompt = new TextPrompt(Translator.getValue("email"), emailField);
         emailPrompt.setFont(new Font("Dialog", Font.ITALIC, 23));
         emailPrompt.setForeground(Color.decode("#AAAAAA"));
         emailField.setBounds(50, 250, baseFrame.getWidth() / 3, 40);
@@ -61,7 +61,7 @@ public class LoginPanel extends BasePanel {
 
         // Password
         JPasswordField passwordField = new JPasswordField("");
-        TextPrompt passwordPrompt = new TextPrompt("Password:", passwordField);
+        TextPrompt passwordPrompt = new TextPrompt(Translator.getValue("password"), passwordField);
         passwordPrompt.setFont(new Font("Dialog", Font.ITALIC, 23));
         passwordPrompt.setForeground(Color.decode("#AAAAAA"));
         passwordField.setBounds(50, 315, baseFrame.getWidth() / 3, 40);
@@ -69,7 +69,7 @@ public class LoginPanel extends BasePanel {
         componentsPanel.add(passwordField);
 
         // Buttons
-        RButton loginButton = new RButton("Login", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        RButton loginButton = new RButton(Translator.getValue("login"), Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         loginButton.setBounds(50 + 109, 400, 210, 45);
         loginButton.setCursor(cursor);
         loginButton.setFont(new Font("Dialog", Font.BOLD, 23));
@@ -101,7 +101,7 @@ public class LoginPanel extends BasePanel {
         });
         componentsPanel.add(loginButton);
 
-        JLabel registerLabel = new JLabel("<html><a href=\"#\">Don't have an account? Register Here</a></html>");
+        JLabel registerLabel = new JLabel("<html><a href=\"#\">"+Translator.getValue("needregister")+"</a></html>");
         registerLabel.setBounds(50, 460, baseFrame.getWidth() / 3, 30);
         registerLabel.setFont(new Font("Dialog", Font.PLAIN, 20));
         registerLabel.setHorizontalAlignment(SwingConstants.CENTER);

@@ -9,6 +9,9 @@ public class MainPanel extends BasePanel {
         setSize(baseFrame.getWidth(), baseFrame.getHeight());
         setLayout(new BorderLayout());
 
+        Translator.setLanguage(Language.ENG);
+        Translator.getMessagesFromXML();
+
         // Create layered pane
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setSize(baseFrame.getWidth(), baseFrame.getHeight());
@@ -39,7 +42,7 @@ public class MainPanel extends BasePanel {
         Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
 
         // Login Button
-        RButton loginButton = new RButton("Login", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        RButton loginButton = new RButton(Translator.getValue("login"), Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         loginButton.setBounds(60, 200, 400, 100);
         loginButton.setCursor(cursor);
         loginButton.setFont(new Font("Dialog", Font.PLAIN, 50));
@@ -50,7 +53,7 @@ public class MainPanel extends BasePanel {
         componentsPanel.add(loginButton);
 
         // Register Button
-        RButton registerButton = new RButton("Register", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        RButton registerButton = new RButton(Translator.getValue("register"), Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         registerButton.setBounds(60, 350, 400, 100);
         registerButton.setCursor(cursor);
         registerButton.setFont(new Font("Dialog", Font.PLAIN, 50));
@@ -61,7 +64,7 @@ public class MainPanel extends BasePanel {
         componentsPanel.add(registerButton);
 
         // Exit Button
-        RButton exitButton = new RButton("Exit", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        RButton exitButton = new RButton(Translator.getValue("exit"), Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         exitButton.setBounds(60, 500, 400, 100);
         exitButton.setCursor(cursor);
         exitButton.setFont(new Font("Dialog", Font.PLAIN, 50));

@@ -40,7 +40,7 @@ public class RegisterPanel extends BasePanel {
     @Override
     public void addComponents(BaseFrame baseFrame, JPanel componentsPanel) {
         JTextField fnameField = new JTextField();
-        TextPrompt fnamePrompt = new TextPrompt("First Name:", fnameField);
+        TextPrompt fnamePrompt = new TextPrompt(Translator.getValue("firstname"), fnameField);
         fnamePrompt.setFont(new Font("Dialog", Font.ITALIC, 23));
         fnamePrompt.setForeground(Color.decode("#AAAAAA"));
         fnameField.setBounds(50, 200, baseFrame.getWidth() / 3, 40);
@@ -48,7 +48,7 @@ public class RegisterPanel extends BasePanel {
         componentsPanel.add(fnameField);
 
         JTextField lnameField = new JTextField();
-        TextPrompt lnamePrompt = new TextPrompt("Last Name:", lnameField);
+        TextPrompt lnamePrompt = new TextPrompt(Translator.getValue("lastname"), lnameField);
         lnamePrompt.setFont(new Font("Dialog", Font.ITALIC, 23));
         lnamePrompt.setForeground(Color.decode("#AAAAAA"));
         lnameField.setBounds(50, 270, baseFrame.getWidth() / 3, 40);
@@ -56,7 +56,7 @@ public class RegisterPanel extends BasePanel {
         componentsPanel.add(lnameField);
 
         JTextField emailField = new JTextField();
-        TextPrompt emailPrompt = new TextPrompt("Email:", emailField);
+        TextPrompt emailPrompt = new TextPrompt(Translator.getValue("email"), emailField);
         emailPrompt.setFont(new Font("Dialog", Font.ITALIC, 23));
         emailPrompt.setForeground(Color.decode("#AAAAAA"));
         emailField.setBounds(50, 340, baseFrame.getWidth() / 3, 40);
@@ -64,7 +64,7 @@ public class RegisterPanel extends BasePanel {
         componentsPanel.add(emailField);
 
         JPasswordField passwordField = new JPasswordField();
-        TextPrompt passwordPrompt = new TextPrompt("Password:", passwordField);
+        TextPrompt passwordPrompt = new TextPrompt(Translator.getValue("password"), passwordField);
         passwordPrompt.setFont(new Font("Dialog", Font.ITALIC, 23));
         passwordPrompt.setForeground(Color.decode("#AAAAAA"));
         passwordField.setBounds(50, 410, baseFrame.getWidth() / 3, 40);
@@ -72,7 +72,7 @@ public class RegisterPanel extends BasePanel {
         componentsPanel.add(passwordField);
 
         JPasswordField passwordRepeatField = new JPasswordField();
-        TextPrompt passwordRepeatPrompt = new TextPrompt("Repeat Password:", passwordRepeatField);
+        TextPrompt passwordRepeatPrompt = new TextPrompt(Translator.getValue("repeatpassword"), passwordRepeatField);
         passwordRepeatPrompt.setFont(new Font("Dialog", Font.ITALIC, 23));
         passwordRepeatPrompt.setForeground(Color.decode("#AAAAAA"));
         passwordRepeatField.setBounds(50, 480, baseFrame.getWidth() / 3, 40);
@@ -81,7 +81,7 @@ public class RegisterPanel extends BasePanel {
 
         Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
 
-        RButton registerButton = new RButton("Register", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        RButton registerButton = new RButton(Translator.getValue("register"), Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         registerButton.setFont(new Font("Dialog", Font.PLAIN, 23));
         registerButton.setBounds(50 + 109, 550, 210, 45);
         registerButton.setCursor(cursor);
@@ -128,7 +128,7 @@ public class RegisterPanel extends BasePanel {
         });
         componentsPanel.add(registerButton);
 
-        JLabel loginLabel = new JLabel("<html><a href=\"#\">Already have an account? Login Here</a></html>");
+        JLabel loginLabel = new JLabel("<html><a href=\"#\">"+Translator.getValue("needlogin")+"</a></html>");
         loginLabel.setBounds(50, 600, baseFrame.getWidth() / 3, 30);
         loginLabel.setFont(new Font("Dialog", Font.PLAIN, 20));
         loginLabel.setHorizontalAlignment(SwingConstants.CENTER);

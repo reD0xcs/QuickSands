@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<translation>
+    <languageList>
+        <language description="English" lang="ENG" />
+        <language description="Romanian" lang="RO" />
+        <language description="Russian" lang="RU" />
+    </languageList>
+    <key value="sms">
+        <val lang="ENG">Student Management System</val>
+        <val lang="RO">Sistem de management al elevilor</val>
+        <val lang="RU">Система управления студентами</val>
+    </key>
+    <key value="selectLanguage">
+        <val lang="ENG">Select a language</val>
+        <val lang="RO">Alege o limbă</val>
+        <val lang="RU">Выберите язык</val>
+    </key>
+    <key value="changeLanguage">
+        <val lang="ENG">Change language</val>
+        <val lang="RO">Schimbă limba</val>
+        <val lang="RU">Изменить язык</val>
+    </key>
+    <key value="login">
+        <val lang="ENG">Login</val>
+        <val lang="RO">Autentificare</val>
+        <val lang="RU">Вход</val>
+    </key>
+    <key value="register">
+        <val lang="ENG">Register</val>
+        <val lang="RO">Înregistrare</val>
+        <val lang="RU">Регистрация</val>
+    </key>
+    <key value="exit">
+        <val lang="ENG">Exit</val>
+        <val lang="RO">Iesire</val>
+        <val lang="RU">Выход</val>
+    </key>
+    <key value="email">
+        <val lang="ENG">Email: </val>
+        <val lang="RO">Email: </val>
+        <val lang="RU">электронная почта:</val>
+    </key>
+    <key value="password">
+        <val lang="ENG">Password: </val>
+        <val lang="RO">Parola: </val>
+        <val lang="RU">пароль:</val>
+    </key>
+    <key value="needregister">
+        <val lang="ENG">Don't have an account? Register Here</val>
+        <val lang="RO">Nu ai un cont? Înregistrează-te aici</val>
+        <val lang="RU">Нет аккаунта? Зарегистрируйтесь здесь</val>
+    </key>
+    <key value="firstname">
+        <val lang="ENG">First Name:</val>
+        <val lang="RO">Prenume:</val>
+        <val lang="RU">Имя:</val>
+    </key>
+    <key value="lastname">
+        <val lang="ENG">Last Name:</val>
+        <val lang="RO">Nume:</val>
+        <val lang="RU">Фамилия:</val>
+    </key>
+    <key value="repeatpassword">
+        <val lang="ENG">Repeat Password:</val>
+        <val lang="RO">Repetă parola:</val>
+        <val lang="RU">Повторите пароль:</val>
+    </key>
+    <key value="needlogin">
+        <val lang="ENG">Already have an account? Login Here</val>
+        <val lang="RO">Ai deja un cont? Autentifică-te aici</val>
+        <val lang="RU">У вас уже есть аккаунт? Войдите здесь</val>
+    </key>
+    <key value="price">
+        <val lang="ENG">Price: $</val>
+        <val lang="RO">Preț: $</val>
+        <val lang="RU">Цена: $</val>
+    </key>
+    <key value="Single">
+        <val lang="ENG">Single Room</val>
+        <val lang="RO">Cameră Single</val>
+        <val lang="RU">Одноместный</val>
+    </key>
+    <key value="Double">
+        <val lang="ENG">Double Room</val>
+        <val lang="RO">Cameră dublă</val>
+        <val lang="RU">Двухместный номер</val>
+    </key>
+    <key value="Twin">
+        <val lang="ENG">Twin Room</val>
+        <val lang="RO">Cameră cu paturi separate</val>
+        <val lang="RU">Номер с двумя кроватями</val>
+    </key>
+    <key value="book">
+        <val lang="ENG">Book Now</val>
+        <val lang="RO">Rezervă acum</val>
+        <val lang="RU">Забронировать сейчас</val>
+    </key>
+    <key value="home">
+        <val lang="ENG">Home</val>
+        <val lang="RO">Acasa</val>
+        <val lang="RU">Домой</val>
+    </key>
+    <key value="reservations">
+        <val lang="ENG">Your Reservations</val>
+        <val lang="RO">Rezervările tale</val>
+        <val lang="RU">Ваши бронирования</val>
+    </key>
+    <key value="settings">
+        <val lang="ENG">Settings</val>
+        <val lang="RO">Setări</val>
+        <val lang="RU">Настройки</val>
+    </key>
+    <key value="logout">
+        <val lang="ENG">Logout</val>
+        <val lang="RO">Delogare</val>
+        <val lang="RU">Выйти из системы</val>
+    </key>
+    <key value="hello">
+        <val lang="ENG">Hello, </val>
+        <val lang="RO">Bună, </val>
+        <val lang="RU">Привет, </val>
+    </key>
+    <key value="submitpayment">
+        <val lang="ENG">Submit payment</val>
+        <val lang="RO">Trimite plată</val>
+        <val lang="RU">Отправить оплату</val>
+    </key>
+    <key value="cardholdername">
+        <val lang="ENG">Card Holder Name: </val>
+        <val lang="RO">Numele deținătorului de card</val>
+        <val lang="RU">Имя держателя карты</val>
+    </key>
+    <key value="">
+        <val lang="ENG"></val>
+        <val lang="RO"></val>
+        <val lang="RU"></val>
+    </key>
+</translation>

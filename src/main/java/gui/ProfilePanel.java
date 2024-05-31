@@ -70,7 +70,7 @@ public class ProfilePanel extends BasePanel {
         });
         add(profileButton, BorderLayout.NORTH);
 
-        String welcomeMessage = "<html><body style='text-align:center'><b>Hello, " + user.getFirst_name() + " " + user.getLast_name() + "</b></body></html>";
+        String welcomeMessage = "<html><body style='text-align:center'><b>"+Translator.getValue("hello") + user.getFirst_name() + " " + user.getLast_name() + "</b></body></html>";
         JLabel welcomeMessageLabel = new JLabel(welcomeMessage);
         welcomeMessageLabel.setBounds(80, 20, getWidth() - 10, 40);
         welcomeMessageLabel.setFont(new Font("Dialog", Font.PLAIN, 20));
@@ -129,11 +129,11 @@ public class ProfilePanel extends BasePanel {
         panel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
         panel.setPreferredSize(new Dimension(700, 300)); // Set a preferred size for the panel
 
-        JLabel roomTypeLabel = new JLabel(offer.getRoomType());
+        JLabel roomTypeLabel = new JLabel(Translator.getValue(offer.getRoomType()));
         roomTypeLabel.setFont(new Font("Dialog", Font.BOLD, 20));
         roomTypeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JLabel roomPriceLabel = new JLabel("Price: $" + offer.getRoomPricePerNight());
+        JLabel roomPriceLabel = new JLabel(Translator.getValue("price") + offer.getRoomPricePerNight());
         roomPriceLabel.setFont(new Font("Dialog", Font.PLAIN, 16));
         roomPriceLabel.setHorizontalAlignment(SwingConstants.LEFT);
 
@@ -146,7 +146,7 @@ public class ProfilePanel extends BasePanel {
         JLabel imageLabel = new JLabel(imageIcon);
         imageLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 
-        RButton bookButton = new RButton("Book now", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        RButton bookButton = new RButton(Translator.getValue("book"), Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         bookButton.setFont(new Font("Dialog", Font.PLAIN, 16));
         bookButton.setForeground(Color.WHITE);
         bookButton.setPreferredSize(new Dimension(100, 40));
@@ -182,7 +182,7 @@ public class ProfilePanel extends BasePanel {
         gbc.weightx = 1.0;
         gbc.insets = new Insets(5, 0, 5, 0); // Spacing between buttons
 
-        SQButton homeButton = new SQButton("Home", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        SQButton homeButton = new SQButton(Translator.getValue("home"), Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         homeButton.setFont(new Font("Dialog", Font.BOLD, 23));
         homeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         homeButton.setForeground(Color.WHITE);
@@ -201,7 +201,7 @@ public class ProfilePanel extends BasePanel {
         });
         menuPanel.add(homeButton, gbc);
 
-        SQButton reservationsButton  = new SQButton("Your Reservations", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        SQButton reservationsButton  = new SQButton(Translator.getValue("reservations"), Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         reservationsButton.setFont(new Font("Dialog", Font.BOLD, 23));
         reservationsButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         reservationsButton.setForeground(Color.WHITE);
@@ -223,7 +223,7 @@ public class ProfilePanel extends BasePanel {
         });
         menuPanel.add(reservationsButton, gbc);
 
-        SQButton settingsButton  = new SQButton("Settings", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        SQButton settingsButton  = new SQButton(Translator.getValue("settings"), Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         settingsButton.setFont(new Font("Dialog", Font.BOLD, 23));
         settingsButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         settingsButton.setForeground(Color.WHITE);
@@ -242,7 +242,55 @@ public class ProfilePanel extends BasePanel {
         });
         menuPanel.add(settingsButton, gbc);
 
-        SQButton logoutButton  = new SQButton("Log Out", Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
+        // Create the panel for language settings
+        JPanel languagePanel = new JPanel();
+        languagePanel.setLayout(new FlowLayout());
+        languagePanel.setBorder(BorderFactory.createTitledBorder("Language Settings"));
+        languagePanel.setVisible(false);
+
+        // The button that changes the langauge of the application
+        JButton changeLanguageButton = new JButton(Translator.getValue("changeLanguage"));
+
+        // Actions to perform when "Change language" button is clicked
+        changeLanguageButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Language selectedLanguage = (Language) JOptionPane.showInputDialog(null, "BookNGo",
+                        Translator.getValue("selectLanguage"), JOptionPane.QUESTION_MESSAGE, null, Language.values(),
+                        Language.ENG.toString());
+
+                if (selectedLanguage != null)
+                    Translator.setLanguage(selectedLanguage);
+                else
+                    return;
+
+                Translator.getMessagesFromXML();
+
+                baseFrame.dispose(); // Dispose of the current frame
+
+                // Create a new BaseFrame
+                BaseFrame newFrame = new BaseFrame(baseFrame.getWidth(), baseFrame.getHeight());
+                // Add the ProfilePanel to the new frame
+                ProfilePanel newProfilePanel = new ProfilePanel(newFrame, user,array);
+                newFrame.add(newProfilePanel);
+                newFrame.setLocationRelativeTo(null);
+                newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                newFrame.setVisible(true); // Show the new frame
+            }
+        });
+        changeLanguageButton.setFont(new Font("Tahoma", Font.PLAIN, 12));
+        changeLanguageButton.setBounds(480, 365, 135, 25);
+        languagePanel.add(changeLanguageButton, gbc);
+        menuPanel.add(languagePanel,gbc);
+
+        // Add action listener to the settings button to toggle visibility of the language panel
+        settingsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                languagePanel.setVisible(!languagePanel.isVisible());
+            }
+        });
+
+        SQButton logoutButton  = new SQButton(Translator.getValue("logout"), Color.decode("#7A4641"), Color.decode("#512E2B"), Color.decode("#8D4841"));
         logoutButton.setFont(new Font("Dialog", Font.BOLD, 23));
         logoutButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         logoutButton.setForeground(Color.WHITE);
@@ -261,8 +309,13 @@ public class ProfilePanel extends BasePanel {
         });
 
         logoutButton.addActionListener(e -> {
+            // Remove the current ProfilePanel from the frame
+            baseFrame.remove(ProfilePanel.this);
+
+            // Create and add the LoginPanel to the frame
             baseFrame.changePanel(new LoginPanel(baseFrame));
         });
+
         menuPanel.add(logoutButton, gbc);
         return menuPanel;
     }
